@@ -281,6 +281,7 @@
                 $("input[data-type=tax]").val(formatCurrencyPrice(tax))
                 $("input[data-type=unit-price]").val(formatCurrencyPrice(unitPrice))
             }
+            console.log(netSale);
         })
 
         $("input[name=tax-include]").change(function () {

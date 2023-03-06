@@ -643,6 +643,12 @@ class ConsumptionController extends Controller
 
                 $idrRemains = $advanceReceive->net_sale - $idrSumAll;
 
+                if ($qtyRemains == 0) {
+                    $idrTotal += $idrRemains;
+                    $idrSumAll += $idrRemains;
+                    $idrRemains -= $idrRemains;
+                }
+
                 /* 2. insert into consumptions table */
                 $consumptionAdd = new Consumption();
                 $consumptionAdd->parent_id = $consumption->id;

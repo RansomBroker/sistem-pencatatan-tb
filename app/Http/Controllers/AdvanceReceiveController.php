@@ -346,19 +346,23 @@ class AdvanceReceiveController extends Controller
         $tax = preg_replace($regex, '', $validator['tax']);
         $unitPrice = preg_replace($regex, '', $validator['unit-price']);
 
+        /* get customer id */
+        $customer =  Customer::where('customer_id', 'ILIKE' , '%'.$validator['customer-id'].'%')->first();
+        /* write to db */
+        $advanceReceive = new AdvanceReceive();
+
         /* check expired date */
         $expiredDate = date($validator['expired-date']);
         if ($expiredDate > date("Y-m-d")) {
             $status = "AVAILABLE";
         } else {
             $status = "EXPIRED";
+            $advanceReceive->qty_expired = $validator['qty'];
+            $advanceReceive->idr_expired = $netSales;
+            $advanceReceive->qty_remains = 0;
+            $advanceReceive->idr_remains = 0;
         }
 
-        /* get customer id */
-        $customer =  Customer::where('customer_id', 'ILIKE' , '%'.$validator['customer-id'].'%')->first();
-
-        /* write to db */
-        $advanceReceive = new AdvanceReceive();
         $advanceReceive->product_id = $validator['product'];
         $advanceReceive->customer_id = $customer->id;
         $advanceReceive->branch_id = $validator['branch'];
@@ -434,8 +438,6 @@ class AdvanceReceiveController extends Controller
         /* write to db */
         $advanceReceive = AdvanceReceive::find($request['id']);
 
-
-
         // Jika qty < qty total
         if ($validator['qty'] < ( $advanceReceive->qty_total ?? 0 ) ) {
             $request->session()->flash('status', 'danger');
@@ -455,10 +457,17 @@ class AdvanceReceiveController extends Controller
         $expiredDate = Carbon::create($validator['expired-date'])->toDateString();
         $currDate = Carbon::now()->toDateString();
         if (($currDate < $expiredDate) &&  ($advanceReceive->qty_remains > 0 || $advanceReceive->qty_remains == null)) {
+            /*
+             *  Karna mengaktifkan kembali maka qty expired = 0
+             * */
             $status = "AVAILABLE";
             $qtyExpired = 0;
             $idrExpired = $qtyExpired * $unitPrice;
         } else {
+            /*
+             * qty expired
+             * ex = 5 - 3 (yang sudah di consum)
+             * */
             $status = "EXPIRED";
             $qtyExpired = $validator['qty'] - $qtyTotal;
             $idrExpired = $qtyExpired * $unitPrice;
@@ -474,6 +483,14 @@ class AdvanceReceiveController extends Controller
         $qtyRemains = $validator['qty'] - $qtySumAll;
         $idrRemains = $netSales - $idrSumAll;
 
+        // check selisih karna angka desimal dari outstanding
+        if ($qtyRemains == 0) {
+            $idrSumAll += $idrRemains;
+            $idrExpired += $idrRemains;
+            // paling akhir
+            $idrRemains -= $idrRemains;
+        }
+        
         // Update Data
         $advanceReceive->product_id = $validator['product'];
         $advanceReceive->customer_id = $customer->id;

@@ -55,6 +55,13 @@
                     <i class='bx bxs-pie-chart'></i>Consumption
                 </a>
             </li>
+
+            <li class="sidebar-item {{ Route::current()->uri == 'expired' ? 'active' : '' }}">
+                <a class="sidebar-link" href="{{ URL::to('expired') }}">
+                    <i class='bx bxs-calendar'></i>Expired
+                </a>
+            </li>
+
         </ul>
     </div>
 </nav>

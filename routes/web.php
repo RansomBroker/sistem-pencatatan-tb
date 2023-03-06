@@ -5,6 +5,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ConsumptionController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExpiredController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -101,6 +102,7 @@ Route::controller(AdvanceReceiveController::class)->group(function () {
 /* Consumption */
 Route::controller(ConsumptionController::class)->group(function () {
     Route::get('/consumption', 'consumption');
+    /* will replace to post if ok*/
     Route::get('/consumption/data-get', 'consumptionDataGET');
 
     Route::get('/consumption/consumption-add', 'consumptionAddView');
@@ -114,5 +116,13 @@ Route::controller(ConsumptionController::class)->group(function () {
 
     /* create column */
     Route::get('/consumption/get-column', 'getColumn');
+});
+
+/* Expired */
+Route::controller(ExpiredController::class)->group(function () {
+    Route::get('/expired', 'expired');
+    Route::get('/expired/data-get', 'expiredDataGET');
+
+    Route::get('/expired/add-expired', 'expiredAddView');
 });
 
