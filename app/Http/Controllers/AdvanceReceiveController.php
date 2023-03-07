@@ -351,9 +351,9 @@ class AdvanceReceiveController extends Controller
         /* write to db */
         $advanceReceive = new AdvanceReceive();
 
-        /* check expired date */
-        $expiredDate = date($validator['expired-date']);
-        if ($expiredDate > date("Y-m-d")) {
+        $expiredDate = Carbon::create($validator['expired-date'])->toDateString();
+        $currDate = Carbon::now()->toDateString();
+        if ($expiredDate >= $currDate) {
             $status = "AVAILABLE";
         } else {
             $status = "EXPIRED";
@@ -456,7 +456,7 @@ class AdvanceReceiveController extends Controller
         // calculate expired
         $expiredDate = Carbon::create($validator['expired-date'])->toDateString();
         $currDate = Carbon::now()->toDateString();
-        if (($currDate < $expiredDate) &&  ($advanceReceive->qty_remains > 0 || $advanceReceive->qty_remains == null)) {
+        if (($expiredDate >= $currDate) &&  ($advanceReceive->qty_remains > 0 || $advanceReceive->qty_remains == null)) {
             /*
              *  Karna mengaktifkan kembali maka qty expired = 0
              * */
@@ -490,7 +490,7 @@ class AdvanceReceiveController extends Controller
             // paling akhir
             $idrRemains -= $idrRemains;
         }
-        
+
         // Update Data
         $advanceReceive->product_id = $validator['product'];
         $advanceReceive->customer_id = $customer->id;
