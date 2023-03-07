@@ -1,5 +1,5 @@
 @extends('master')
-@section('title', 'Expired Advance Receive')
+@section('title', 'Add Expired Advance Receive')
 @section('content')
     <div class="container-fluid p-0">
         {{-- csrf --}}
@@ -7,22 +7,12 @@
 
         {{-- title --}}
         <div class="mb-3">
-            <h2 class="h2 d-inline align-middle fw-bold">Expired Advance Receive</h2>
+            <h2 class="h2 d-inline align-middle fw-bold">Add Expired Advance Receive</h2>
         </div>
 
         {{-- card --}}
         <div class="card card-body row d-flex flex-column flex-wrap">
 
-            @if($message = Session::get('message'))
-                @if($status = Session::get('status'))
-                    <div class="alert alert-{{ $status}} alert-dismissible fade show" role="alert">
-                        {{ $message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-            @endif
-
-            <a href="{{ URL::to('expired/add-expired') }}" class="col-12 col-lg-3 btn btn-secondary mb-3"> <i class='bx bx-plus'></i> Add New Expired Advance Receive</a>
             {{-- search form --}}
             <div class="card card-body shadow-lg">
                 <h3 class="d-inline align-middle"> Cari Expired</h3>
@@ -67,43 +57,27 @@
 
             {{-- table --}}
             <div class="card card-body shadow-lg">
-                <h3 class="d-inline align-middle">Perhitungan Data Expired Advance Receive </h3>
-                <div class="mb-3 table-responsive mt-2">
-                    <table class="table table-striped table-hover text-nowrap w-100">
+                <h3 class="d-inline align-middle">Data Advance Receive</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover text-nowrap w-100" id="expired-advance-receive-table">
                         <thead>
                         <tr>
+                            <th>Action</th>
+                            <th>Cabang Penjualan</th>
+                            <th>Tanggal Penjualan</th>
+                            <th>Expired Date</th>
+                            <th>ID Customer</th>
+                            <th>Nama Customer</th>
+                            <th>Tipe</th>
+                            <th>QTY Produk</th>
+                            <th>Produk</th>
+                            <th>Kategori Paket</th>
+                            <th>NOTES</th>
                             <th>QTY Expired Advance Receive</th>
                             <th>IDR Expired Advance Receive</th>
                             <th>QTY Total Sisa Advance Receive</th>
                             <th>IDR Total Sisa Advance Receive</th>
                         </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="report-tr">
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover text-nowrap w-100" id="expired-advance-receive-table">
-                        <thead>
-                            <tr>
-                                <th>Action</th>
-                                <th>Cabang Penjualan</th>
-                                <th>Tanggal Penjualan</th>
-                                <th>Expired Date</th>
-                                <th>ID Customer</th>
-                                <th>Nama Customer</th>
-                                <th>Tipe</th>
-                                <th>QTY Produk</th>
-                                <th>Produk</th>
-                                <th>Kategori Paket</th>
-                                <th>NOTES</th>
-                                <th>QTY Expired Advance Receive</th>
-                                <th>IDR Expired Advance Receive</th>
-                                <th>QTY Total Sisa Advance Receive</th>
-                                <th>IDR Total Sisa Advance Receive</th>
-                            </tr>
                         </thead>
                     </table>
                 </div>
@@ -118,17 +92,9 @@
                 bProcessing: true,
                 bServerSide: true,
                 ajax: {
-                    url: "{{ URL::to('/expired/data-get') }}",
+                    url: "{{ URL::to('/expired/data-get-available') }}",
                     type: 'GET',
                     dataSrc: function (data) {
-                        /* Menampilkan data report */
-                        $(".report-tr").empty();
-                        $(".report-tr").append(`
-                                        <td>${data.report.qty_expired}</td>
-                                        <td>${data.report.idr_expired}</td>
-                                        <td>${data.report.qty_remains}</td>
-                                        <td>${data.report.idr_remains}</td>
-                        `)
                         return data.data
                     }
                 },
@@ -158,6 +124,9 @@
                     {
                         sortable: false,
                         "render": function(data, type, full, meat) {
+                            if (full.idr_expired === null) {
+                                return '-'
+                            }
                             return formatCurrencyPrice(full.idr_expired.split('.')[0])
                         }
                     },
@@ -165,6 +134,9 @@
                     {
                         sortable: false,
                         "render": function(data, type, full, meat) {
+                            if (full.idr_remains === null) {
+                                return '-'
+                            }
                             return formatCurrencyPrice(full.idr_remains.split('.')[0])
                         }
                     },
@@ -176,7 +148,7 @@
                         orderable: false,
                         render: function (data, type, full, meta){
                             return `
-                                            <button class="btn-expired btn btn-success" data-advance-receive="${full.id+'||'+full.customers[0].name}">Tambah Expired</buton>
+                                            <button class="btn-expired btn btn-danger" data-advance-receive="${full.id+'||'+full.customers[0].name}">Tambah Expired</buton>
                                         `;
                         }
                     },
@@ -238,10 +210,63 @@
 
             })
 
+            /* reset form */
             $('.btn-reset').on('click', function (e) {
                 e.preventDefault();
                 $("#filter-form")[0].reset();
                 expiredAdvanceReceiveTable.columns().search('').clear().draw();
+            })
+
+            /* btn tambah expired */
+            $(document).on('click', '.btn-expired', function (e) {
+                let id = $(this).attr('data-advance-receive').split('||')[0];
+                let name = $(this).attr('data-advance-receive').split('||')[1];
+
+                swal.fire({
+                    icon: 'question',
+                    title: 'Konfirmasi Expired Advance Receive',
+                    text: 'Apakah anda yakin akan expired/mengkadaluarsakan advance receive customer ' + name,
+                    showCancelButton: true,
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '{{ URL::to('expired/add-expired/') }}' + '/' + id,
+                            method: 'GET',
+                            beforeSend: function () {
+                                Swal.fire({
+                                    html: `
+                                                <div class="d-flex justify-content-center fs-4 ">
+                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                        Loading...
+                                                </div>
+                                            `,
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                })
+                            },
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil Expired Advance receive',
+                                        text: response.message,
+                                        showConfirmButton: true,
+                                        allowOutsideClick: false,
+                                        allowEscapeKey: false
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.reload();
+                                        }
+                                    })
+                                    window.location.reload();
+                                }
+                            }
+                        })
+                    }
+                })
+
             })
 
             function formatNumberPrice(n) {
