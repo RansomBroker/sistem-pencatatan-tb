@@ -156,7 +156,7 @@ class ConsumptionController extends Controller
 
         // generate data
         $columnsRecord = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches')
+            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
             ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
             ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
             ->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
@@ -176,7 +176,7 @@ class ConsumptionController extends Controller
 
 
         $data = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches')
+            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
             ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
             ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
             ->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
@@ -262,6 +262,7 @@ class ConsumptionController extends Controller
                 'qty_remains' => $advanceReceive->qty_remains ?? "-",
                 'idr_remains' => $this->formatNumberPrice($advanceReceive->idr_remains) ?? "-",
                 'status' => $advanceReceive->status,
+                'refund_branch' => count($advanceReceive->refund_branches) > 0 ? $advanceReceive->refund_branches[0]->name : '',
                 $tmp
             ];
         }
@@ -277,6 +278,9 @@ class ConsumptionController extends Controller
                     if (($data['status'] == "EXPIRED") &&  ($data['qty'] > $i )) {
                         $consumptionDate = 'EXPIRED';
                         $consumptionBranch = $data['branch'];
+                    }else if (($data['status'] == "REFUND") &&  ($data['qty'] > $i )) {
+                        $consumptionDate = 'REFUND';
+                        $consumptionBranch = $data['refund_branch'];
                     } else {
                         $consumptionDate = '-';
                         $consumptionBranch = '-';

@@ -62,6 +62,12 @@
                 </a>
             </li>
 
+            <li class="sidebar-item {{ Route::current()->uri == 'refund' ? 'active' : '' }}">
+                <a class="sidebar-link" href="{{ URL::to('refund') }}">
+                    <i class='bx bx-money' ></i>Refund
+                </a>
+            </li>
+
         </ul>
     </div>
 </nav>

@@ -7,6 +7,7 @@ use App\Http\Controllers\ConsumptionController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpiredController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -129,4 +130,16 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/expired/add-expired', 'expiredAddView');
         Route::get('/expired/add-expired/{id}', 'expiredAdd');
     });
+
+    /* Refund */
+    Route::controller(RefundController::class)->group(function () {
+        Route::get('/refund', 'refund');
+        Route::get('/refund/data-get', 'refundDataGET');
+        Route::get('/refund/data-get-available', 'refundDataGetAvailable');
+        Route::get('/refund/get-branch-list', 'branchList');
+
+        Route::get('/refund/add-refund', 'addRefundView');
+        Route::post('/refund/add-refund/add', 'addRefund');
+    });
+
 });

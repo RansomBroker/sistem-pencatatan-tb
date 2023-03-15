@@ -28,4 +28,9 @@ class AdvanceReceive extends Model
     {
         return $this->hasMany(Consumption::class, 'id', 'consumption_id');
     }
+
+    public function refund_branches()
+    {
+        return $this->hasMany(Branch::class, 'id', 'branch_id');
+    }
 }
