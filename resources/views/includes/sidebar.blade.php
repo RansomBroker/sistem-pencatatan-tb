@@ -68,6 +68,11 @@
                 </a>
             </li>
 
+            <li class="sidebar-item {{ Route::current()->uri == 'outstanding' ? 'active' : '' }}">
+                <a class="sidebar-link" href="{{ URL::to('outstanding') }}">
+                    <i class='bx bx-notepad'></i>Outstanding
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

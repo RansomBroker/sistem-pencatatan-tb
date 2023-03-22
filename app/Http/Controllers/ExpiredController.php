@@ -33,7 +33,7 @@ class ExpiredController extends Controller
                 }
             })
             ->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
-            ->where('status', 'EXPIRED')
+            ->where('status', $_GET['columns'][10]['search']['value'] == "" ?  "EXPIRED" : $_GET['columns'][10]['search']['value'])
             ->get();
 
         $data = AdvanceReceive::with('customers', 'branches', 'products.categories')
@@ -45,7 +45,7 @@ class ExpiredController extends Controller
                 }
             })
             ->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
-            ->where('status', 'EXPIRED')
+            ->where('status', $_GET['columns'][10]['search']['value'] == "" ?  "EXPIRED" : $_GET['columns'][10]['search']['value'])
             ->offset($_GET['start'])
             ->limit($_GET['length'])
             ->get();

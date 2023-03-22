@@ -8,6 +8,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpiredController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RefundController;
+use App\Http\Controllers\OutstandingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -140,6 +141,12 @@ Route::middleware(['expired.check'])->group(function () {
 
         Route::get('/refund/add-refund', 'addRefundView');
         Route::post('/refund/add-refund/add', 'addRefund');
+    });
+
+    /* Outstanding */
+    Route::controller(OutstandingController::class)->group(function() {
+        Route::get('/outstanding', 'outstanding');
+        Route::get('/outstanding/data-get', 'outstandingDataGET');
     });
 
 });

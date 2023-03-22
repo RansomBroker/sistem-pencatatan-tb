@@ -764,6 +764,14 @@ class ConsumptionController extends Controller
 
         $idrRemains = $advanceReceive->net_sale - $idrSumAll;
 
+        // check if qty Remains is bigger than 0
+        $status = "";
+        if ($qtyRemains > 0) {
+            $status = "AVAILABLE";
+        } else {
+            $status = "OUT";
+        }
+
         /* update advance receive */
         $updateAdvanceReceive = AdvanceReceive::find($request['advance-receive-id']);
         $updateAdvanceReceive->qty_total = $qtyTotal;
@@ -772,6 +780,7 @@ class ConsumptionController extends Controller
         $updateAdvanceReceive->idr_sum_all = $idrSumAll;
         $updateAdvanceReceive->qty_remains = $qtyRemains;
         $updateAdvanceReceive->idr_remains = $idrRemains;
+        $updateAdvanceReceive->status = $status;
 
         if ($updateAdvanceReceive->save()) {
             $consumption = Consumption::find($request['consumption-id']);

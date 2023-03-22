@@ -29,21 +29,28 @@
                 <h5 class="d-inline align-middle"> Filter Berdasarkan:</h5>
                 <form class="mb-3" id="filter-form">
                     <div class="row g-2">
-                        <div class="col-lg-4 col-12">
+                        <div class="col-lg-3 col-12">
                             <label class="form-label">ID Customer</label>
                             <input class="form-control" name="id" placeholder="Ketikan ID customer">
                         </div>
-                        <div class="col-lg-4 col-12">
+                        <div class="col-lg-3 col-12">
                             <label class="form-label">Nama</label>
                             <input class="form-control" name="name" placeholder="Ketikan Customer">
                         </div>
-                        <div class="col-lg-4 col-12">
+                        <div class="col-lg-3 col-12">
                             <label class="form-label">Cabang</label>
                             <select class="form-select" name="branch">
                                 <option value="">--- Pilih Cabang ---</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-12 ">
+                            <label class="form-label">Status Advance Receive</label>
+                            <select name="status" id="status-id" class="form-select">
+                                <option value="EXPIRED">EXPIRED</option>
+                                <option value="AVAILABLE">AVAILABLE/ACTIVE</option>
                             </select>
                         </div>
                         <div class="col-lg-4 col-12  row p-0 ms-1 mt-3">
@@ -125,9 +132,9 @@
                         $(".report-tr").empty();
                         $(".report-tr").append(`
                                         <td>${data.report.qty_expired}</td>
-                                        <td>${data.report.idr_expired}</td>
+                                        <td>${formatCurrencyPrice(data.report.idr_expired)}</td>
                                         <td>${data.report.qty_remains}</td>
-                                        <td>${data.report.idr_remains}</td>
+                                        <td>${formatCurrencyPrice(data.report.idr_remains)}</td>
                         `)
                         return data.data
                     }
@@ -154,18 +161,40 @@
                     {"data" : "products[0].name"},
                     {"data" : "products[0].categories[0].name"},
                     {"data" : "notes"},
-                    {"data" : "qty_expired"},
                     {
                         sortable: false,
                         "render": function(data, type, full, meat) {
-                            return formatCurrencyPrice(full.idr_expired.split('.')[0])
+                            if (full.qty_expired != null) {
+                                return full.qty_expired;
+                            }
+                            return "0"
                         }
                     },
-                    {"data" : "qty_remains"},
                     {
                         sortable: false,
                         "render": function(data, type, full, meat) {
-                            return formatCurrencyPrice(full.idr_remains.split('.')[0])
+                            if (full.idr_expired != null) {
+                                return formatCurrencyPrice(full.idr_expired.split('.')[0])
+                            }
+                            return "0"
+                        }
+                    },
+                    {
+                        sortable: false,
+                        "render": function(data, type, full, meat) {
+                            if (full.qty_remains != null) {
+                                return full.qty_remains;
+                            }
+                            return "0"
+                        }
+                    },
+                    {
+                        sortable: false,
+                        "render": function(data, type, full, meat) {
+                            if (full.idr_remains != null) {
+                                return formatCurrencyPrice(full.idr_remains.split('.')[0])
+                            }
+                            return "0"
                         }
                     },
                 ],
@@ -195,6 +224,7 @@
                 let idFilter = $("[name=id]").val();
                 let nameFilter = $("[name=name]").val();
                 let branchFilter = $("[name=branch]").val();
+                let statusFilter = $("#status-id").val();
                 /* period buy_date*/
                 let startExpiredDate = $("[name=expired-date-start]").val();
                 let endExpiredDate = $("[name=expired-date-end]").val();
@@ -234,6 +264,9 @@
 
                 if (branchFilter.length > 0) {
                     expiredAdvanceReceiveTable.columns(0).search(branchFilter).draw();
+                }
+                if (statusFilter.length > 0) {
+                    expiredAdvanceReceiveTable.columns(10).search(statusFilter).draw();
                 }
 
             })

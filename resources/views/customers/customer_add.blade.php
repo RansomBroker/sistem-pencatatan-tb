@@ -9,6 +9,14 @@
 
         {{-- Form --}}
         <div class="card card-body">
+            @if($message = Session::get('message'))
+                @if($status = Session::get('status'))
+                    <div class="alert alert-{{ $status}} alert-dismissible fade show" role="alert">
+                        {{ $message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+            @endif
             <form method="POST" action="{{ URL::to('customer/customer-add/add') }}">
                 {{-- csrf --}}
                 @csrf

@@ -32,6 +32,14 @@ class CustomerController extends Controller
             'payment-number' => 'max:25',
         ]);
 
+        // validasi apakah customer telah ada berdasrakan id customer
+        $customerExist = Customer::where("customer_id", 'ILIKE', '%'.$validator['customer-id'].'%')->count();
+        if ($customerExist > 0 ) {
+            $request->session()->flash('status', 'danger');
+            $request->session()->flash('message', 'Gagal Customer ID sudah terdapat di dalam database');
+            return redirect('customer/customer-add');
+        }
+
         $customer = new Customer();
         $customer->customer_id = $validator['customer-id'];
         $customer->name = $validator['name'];
