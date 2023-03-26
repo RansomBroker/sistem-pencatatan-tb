@@ -60,7 +60,6 @@
                             <th>Product ID</th>
                             <th>Category</th>
                             <th>Name</th>
-                            <th>Memo</th>
                             <th>Action</th>
                         </tr>
                         </thead>
@@ -70,7 +69,6 @@
                             <th>Product ID</th>
                             <th>Category</th>
                             <th>Name</th>
-                            <th>Memo</th>
                             <th>Action</th>
                         </tr>
                         </tfoot>
@@ -110,11 +108,12 @@
                         {"data": "product_id"},
                         {"data": "categories.0.name"},
                         {"data": "name"},
-                        {"data": "memo"},
                         {
                             sortable: false,
                             "render": function(data, type, full, meat) {
-                                return `<a href="{{ URL::to('product/product-edit') }}/${full.id}" class="btn btn-success"><i class='bx bxs-edit'></i> Edit</a>  <button class="btn btn-danger"><i class='bx bxs-trash=alt'></i> Delete</button>`
+                                return `
+                                <a href="{{ URL::to('product/product-edit') }}/${full.id}" class="btn btn-success"><i class='bx bxs-edit'></i> Edit</a>
+                                <button class="btn-delete btn btn-danger" data-id="${full.id}" data-name="${full.name}"><i class='bx bxs-trash=alt'></i> Delete</button>`
                             }
                         }
                     ]
@@ -155,6 +154,70 @@
                     e.preventDefault();
                     $("#filter-form")[0].reset();
                     productTable.columns().search('').clear().draw();
+                })
+
+                /* Delete Product */
+                $(document).on('click', '.btn-delete', function () {
+                    let productID = $(this).attr("data-id");
+                    let productName = $(this).attr("data-name");
+
+                    swal.fire({
+                        icon: 'question',
+                        title: 'Konfirmasi Penghapusan Product',
+                        text: 'Apakah anda yakin akan menghapus product ' + productName,
+                        showCancelButton: true,
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ URL::to('product/product-delete') }}" + '/' + productID,
+                                method: "GET",
+                                beforeSend: function () {
+                                    Swal.fire({
+                                        html: `
+                                                <div class="d-flex justify-content-center fs-4 ">
+                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                        Loading...
+                                                </div>
+                                            `,
+                                        showConfirmButton: false,
+                                        allowOutsideClick: false,
+                                        allowEscapeKey: false
+                                    })
+                                },
+                                success: function (response) {
+                                    console.log(response)
+                                    if (response.status === "success") {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Berhasil Menghapus Product',
+                                            text: response.message,
+                                            showConfirmButton: false,
+                                            allowOutsideClick: false,
+                                            allowEscapeKey: false
+                                        })
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 1250)
+                                    }
+
+                                    if (response.status === "failed") {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Gagal Menghapus Product',
+                                            text: response.message,
+                                            showConfirmButton: false,
+                                            allowOutsideClick: false,
+                                            allowEscapeKey: false
+                                        })
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 1250)
+                                    }
+                                }
+                            })
+                        }
+                    })
                 })
 
             }

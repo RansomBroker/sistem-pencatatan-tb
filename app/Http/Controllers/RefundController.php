@@ -27,11 +27,9 @@ class RefundController extends Controller
     {
         $id = $request['id'];
         $branchId = $request['branchId'];
-        $refundDate = $request['refundDate'];
 
         $advanceReceive = AdvanceReceive::find($id);
         $advanceReceive->status = 'REFUND';
-        $advanceReceive->refund_date = $refundDate;
         $advanceReceive->refund_branch_id = $branchId;
         $qtyTotal = $advanceReceive->qty_total ?? 0;
         $idrTotal = $advanceReceive->idr_total ?? 0;
@@ -78,9 +76,9 @@ class RefundController extends Controller
 
     public function refundDataGET()
     {
-        $refundDateRequest = $_GET['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $_GET['columns'][2]['search']['value'];
-        $refundDateStart = explode("||", $refundDateRequest)[0];
-        $refundDateEnd = explode("||", $refundDateRequest)[1];
+        $buyDateRequest = $_GET['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $_GET['columns'][2]['search']['value'];
+        $buyDateStart = explode("||", $buyDateRequest)[0];
+        $buyDateEnd = explode("||", $buyDateRequest)[1];
 
         $dataCount = AdvanceReceive::with('customers', 'branches', 'products.categories', 'refund_branches' )
             ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
@@ -90,7 +88,7 @@ class RefundController extends Controller
                     $query->where('id', $_GET['columns'][0]['search']['value']);
                 }
             })
-            ->whereBetween('refund_date', [$refundDateStart, $refundDateEnd])
+            ->whereBetween('buy_date', [$buyDateStart, $buyDateEnd])
             ->where('status', 'REFUND')
             ->get();
 
@@ -102,17 +100,17 @@ class RefundController extends Controller
                     $query->where('id', $_GET['columns'][0]['search']['value']);
                 }
             })
-            ->whereBetween('refund_date', [$refundDateStart, $refundDateEnd])
+            ->whereBetween('buy_date', [$buyDateStart, $buyDateEnd])
             ->where('status', 'REFUND')
             ->offset($_GET['start'])
             ->limit($_GET['length'])
             ->get();
 
         $report = [
-            'qty_refund' => $data->sum('qty_refund'),
-            'idr_refund' => $data->sum('idr_refund'),
-            'qty_remains' => $data->sum('qty_remains'),
-            'idr_remains' => $data->sum('idr_remains')
+            'qty_refund' => $dataCount->sum('qty_refund'),
+            'idr_refund' => $dataCount->sum('idr_refund'),
+            'qty_remains' => $dataCount->sum('qty_remains'),
+            'idr_remains' => $dataCount->sum('idr_remains')
         ];
 
         return response()->json([
@@ -126,9 +124,9 @@ class RefundController extends Controller
 
     public function refundDataGetAvailable()
     {
-        $refundDateRequest = $_GET['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $_GET['columns'][2]['search']['value'];
-        $refundDateStart = explode("||", $refundDateRequest)[0];
-        $refundDateEnd = explode("||", $refundDateRequest)[1];
+        $buyDateRequest = $_GET['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $_GET['columns'][2]['search']['value'];
+        $buyDateStart = explode("||", $buyDateRequest)[0];
+        $buyDateEnd = explode("||", $buyDateRequest)[1];
 
         $dataCount = AdvanceReceive::with('customers', 'branches', 'products.categories')
             ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
@@ -138,7 +136,7 @@ class RefundController extends Controller
                     $query->where('id', $_GET['columns'][0]['search']['value']);
                 }
             })
-            ->whereBetween('buy_date', [$refundDateStart, $refundDateEnd])
+            ->whereBetween('buy_date', [$buyDateStart, $buyDateEnd])
             ->where('status', 'AVAILABLE')
             ->get();
 
@@ -150,7 +148,7 @@ class RefundController extends Controller
                     $query->where('id', $_GET['columns'][0]['search']['value']);
                 }
             })
-            ->whereBetween('buy_date', [$refundDateStart, $refundDateEnd])
+            ->whereBetween('buy_date', [$buyDateStart, $buyDateEnd])
             ->where('status', 'AVAILABLE')
             ->offset($_GET['start'])
             ->limit($_GET['length'])

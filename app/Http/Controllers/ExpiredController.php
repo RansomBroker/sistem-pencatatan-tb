@@ -99,10 +99,10 @@ class ExpiredController extends Controller
             ->get();
 
         $report = [
-            'qty_expired' => $data->sum('qty_expired'),
-            'idr_expired' => $data->sum('idr_expired'),
-            'qty_remains' => $data->sum('qty_remains'),
-            'idr_remains' => $data->sum('idr_remains')
+            'qty_expired' => $dataCount->sum('qty_expired'),
+            'idr_expired' => $dataCount->sum('idr_expired'),
+            'qty_remains' => $dataCount->sum('qty_remains'),
+            'idr_remains' => $dataCount->sum('idr_remains')
         ];
 
         return response()->json([

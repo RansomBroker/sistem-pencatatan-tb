@@ -97,7 +97,7 @@ class BranchController extends Controller
 
         $branchData = Branch::orderBy($columns[$request['order'][0]['column']], $request['order'][0]['dir'])
             ->where('name', 'ILIKE',  '%'.$request['columns'][1]['search']['value'].'%')
-            ->where('branch', 'ILIKE',  '%'.$request['columns'][2]['search']['value'].'%')
+            ->where('branch', 'ILIKE',  '%'.($request['columns'][2]['search']['value']).'%')
             ->where('address', 'ILIKE',  '%'.$request['columns'][3]['search']['value'].'%')
             ->where('telephone', 'ILIKE',  '%'.$request['columns'][4]['search']['value'].'%')
             ->where('npwp', 'ILIKE',  '%'.$request['columns'][5]['search']['value'].'%')

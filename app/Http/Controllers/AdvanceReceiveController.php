@@ -9,6 +9,7 @@ use App\Models\Consumption;
 use App\Models\Customer;
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class AdvanceReceiveController extends Controller
@@ -222,7 +223,7 @@ class AdvanceReceiveController extends Controller
             }
 
             $userDataConsumption[] = [
-                'memo'=> $advanceReceive->products[0]->memo,
+                'memo'=> $advanceReceive->memo,
                 'action' => $advanceReceive->id,
                 'id' => $advanceReceive->id,
                 'branch' => $advanceReceive->branches[0]->name,
@@ -381,6 +382,7 @@ class AdvanceReceiveController extends Controller
         $advanceReceive->expired_date = $validator['expired-date'];
         $advanceReceive->status = $status;
         $advanceReceive->notes = $request['notes'] ?? '';
+        $advanceReceive->memo = $request['memo'] ?? '';
 
         if ($advanceReceive->save()) {
             $consumption = new Consumption();
@@ -510,6 +512,7 @@ class AdvanceReceiveController extends Controller
         $advanceReceive->expired_date = $validator['expired-date'];
         $advanceReceive->status = $status;
         $advanceReceive->notes = $request['notes'] ?? '';
+        $advanceReceive->memo = $request['memo']??'';
         $advanceReceive->idr_total = $idrTotal;
         $advanceReceive->idr_expired = $idrExpired;
         $advanceReceive->idr_refund = $idrRefund;
@@ -548,6 +551,23 @@ class AdvanceReceiveController extends Controller
         return response()->json([
             'data' => $category
         ]);
+    }
+
+    public function advanceReceiveDelete($id)
+    {
+        $advanceReceive = AdvanceReceive::find($id);
+        try {
+            $advanceReceive->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil menghapus Advance Receive'
+            ]);
+        }catch (QueryException $error) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Gagal menghapus Advance Receive dikarenakan Advance Receive sedang digunakan'
+            ]);
+        }
     }
 
     private function formatNumberPrice($n) {

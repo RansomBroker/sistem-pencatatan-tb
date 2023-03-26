@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -84,5 +85,23 @@ class CategoryController extends Controller
             'recordsFiltered' => intval($recordsTotal),
             "data" => $data
         ]);
+    }
+
+    public function categoryDelete($id)
+    {
+        $category = Category::find($id);
+        $categoryName = $category->name;
+        try {
+            $category->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil menghapus category '.$categoryName
+            ]);
+        }catch (QueryException $error) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Gagal menghapus category '.  $categoryName  .' dikarenakan category sedang digunakan'
+            ]);
+        }
     }
 }

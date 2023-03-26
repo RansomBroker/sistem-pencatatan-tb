@@ -179,6 +179,15 @@
                         </div>
                         @enderror
                     </div>
+                    <div class="mb-3 col-12 col-lg-12">
+                        <label class="form-label">Memo <sup class="text-danger">(Optional)</sup></label>
+                        <input type="text" class="form-control @error('memo') is-invalid @enderror" placeholder="Ketikan memo" name="memo" value="{{ $advanceReceive->memo }}"/>
+                        @error('memo')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
                     <button type="submit" class="btn btn-secondary col-12 col-lg-12 mb-3">Simpan Perubahan</button>
                     <a href="{{ URL::to('advance-receive') }}" class="btn btn-danger col-12 col-lg-12 mb-3">Kembali</a>
                 </div>

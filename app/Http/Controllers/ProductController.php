@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -55,14 +56,12 @@ class ProductController extends Controller
             'product-id' => 'required|max:20',
             'category' => 'required',
             'name' => 'required|max:20',
-            'memo' => 'max:40'
         ]);
 
         $product = new Product();
         $product->category_id = $validator['category'];
         $product->product_id = $validator['product-id'];
         $product->name = $validator['name'];
-        $product->memo = $validator['memo'] ?? '';
 
         if ($product->save()) {
             $request->session()->flash('status', 'success');
@@ -106,5 +105,26 @@ class ProductController extends Controller
             $request->session()->flash('message', 'Gagal Mengedit data');
         }
         return redirect('product');
+    }
+
+    public function productDelete($id)
+    {
+        $product = Product::find($id);
+        $productName = $product->name;
+
+        try {
+            $product->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Berhasil menghapus product '.$productName
+            ]);
+        }catch (QueryException $error) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Gagal menghapus product '.  $productName  .' dikarenakan product sedang digunakan'
+            ]);
+        }
+
+
     }
 }

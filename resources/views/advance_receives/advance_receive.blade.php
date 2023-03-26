@@ -140,7 +140,7 @@
                                     render: function (data, type, full, meta){
                                         return `
                                             <a href="{{ URL::to('advance-receive/advance-receive-edit') }}/${full.id}" class="btn btn-success"><i class='bx bxs-edit'></i> Edit</a>
-                                            <button class="btn-delete btn btn-danger" data-advance="${ full.id}}">Delete</buton>
+                                            <button class="btn-delete btn btn-danger" data-id="${full.id}" data-name="${full.customer_name}"><i class='bx bxs-trash=alt'></i> Delete</button>
                                         `;
                                     }
                                 },
@@ -152,10 +152,6 @@
                         })
 
                         $("#advance-receive-table_filter").hide()
-
-                        $(document).on('click', '.btn-delete', function(e) {
-
-                        });
 
                         /* filter data */
                         $('.btn-submit').on('click', function (e) {
@@ -212,6 +208,69 @@
                             $("#filter-form")[0].reset();
                             advanceReceiveTable.columns().search('').clear().draw();
                         })
+
+                        $(document).on('click', '.btn-delete', function() {
+                            let advanceReceiveID = $(this).attr("data-id");
+                            let advanceReceiveName = $(this).attr("data-name");
+
+                            swal.fire({
+                                icon: 'question',
+                                title: 'Konfirmasi Penghapusan Advance Receive',
+                                text: 'Apakah anda yakin akan menghapus Advance Receive ' + advanceReceiveName,
+                                showCancelButton: true,
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: "{{ URL::to('advance-receive/advance-receive-delete') }}" + '/' + advanceReceiveID,
+                                        method: "GET",
+                                        beforeSend: function () {
+                                            Swal.fire({
+                                                html: `
+                                                <div class="d-flex justify-content-center fs-4 ">
+                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                        Loading...
+                                                </div>
+                                            `,
+                                                showConfirmButton: false,
+                                                allowOutsideClick: false,
+                                                allowEscapeKey: false
+                                            })
+                                        },
+                                        success: function (response) {
+                                            console.log(response)
+                                            if (response.status === "success") {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Berhasil Menghapus Advance Receive',
+                                                    text: response.message,
+                                                    showConfirmButton: false,
+                                                    allowOutsideClick: false,
+                                                    allowEscapeKey: false
+                                                })
+                                                setTimeout(function () {
+                                                    window.location.reload();
+                                                }, 1250)
+                                            }
+
+                                            if (response.status === "failed") {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Gagal Menghapus Advance Receive',
+                                                    text: response.message,
+                                                    showConfirmButton: false,
+                                                    allowOutsideClick: false,
+                                                    allowEscapeKey: false
+                                                })
+                                                setTimeout(function () {
+                                                    window.location.reload();
+                                                }, 1250)
+                                            }
+                                        }
+                                    })
+                                }
+                            })
+                        });
                     }
                 })
 

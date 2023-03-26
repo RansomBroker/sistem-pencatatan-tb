@@ -82,6 +82,8 @@
                             <th>Produk</th>
                             <th>Kategori Paket</th>
                             <th>NOTES</th>
+                            <th>QTY Total Sisa Advance Receive</th>
+                            <th>IDR Total Sisa Advance Receive</th>
                         </tr>
                         </thead>
                     </table>
@@ -127,6 +129,13 @@
                     {"data" : "products[0].name"},
                     {"data" : "products[0].categories[0].name"},
                     {"data" : "notes"},
+                    {"data" : "qty_remains"},
+                    {
+                        sortable: false,
+                        "render": function(data, type, full, meat) {
+                            return formatCurrencyPrice(full.idr_remains.split('.')[0]);
+                        }
+                    }
                 ],
                 columnDefs: [
                     {
@@ -229,10 +238,6 @@
                                             })()}
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">Tanggal Refund<sup class="text-danger">*</sup></label>
-                                    <input type="date" name="refund-date" id="refund-date-id" class="form-control" required>
-                                </div>
                             </form>
                         `;
 
@@ -250,17 +255,10 @@
                                         return 0;
                                     }
 
-                                    if ($('#refund-date-id').val() === '') {
-                                        swal.showValidationMessage("Pilih tanggal refund")
-                                        swal.enableButtons();
-                                        return 0;
-                                    }
-
-                                    if ($('#branch-id').val() != '' && $('#refund-date-id').val() != '') {
+                                    if ($('#branch-id').val() != '') {
                                         swal.resetValidationMessage();
                                         resolve({
                                             "branchId" : $("#branch-id").val(),
-                                            "refundDate": $("#refund-date-id").val()
                                         });
                                     }
                                 })
@@ -314,6 +312,28 @@
                     }
                 })
             })
+
+            function formatNumberPrice(n) {
+                // format number 1000000 to 1,234,567
+                return n.toString().replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+
+            function formatCurrencyPrice(input) {
+                // appends $ to value, validates decimal side
+                // and puts cursor back in right position.
+
+                // get input value
+                var input_val = input;
+
+                // don't validate empty input
+                if (input_val === "") { return; }
+
+                input_val = formatNumberPrice(input_val);
+                input_val = input_val;
+
+                // send updated string to input
+                return input_val;
+            }
         })
     </script>
 @endsection

@@ -22,7 +22,7 @@
                 @endif
             @endif
 
-            <a href="{{ URL::to('category/category-add') }}" class="col-12 col-lg-3 btn btn-secondary mb-3"> <i class='bx bx-plus'></i> Add New Categoryr</a>
+            <a href="{{ URL::to('category/category-add') }}" class="col-12 col-lg-3 btn btn-secondary mb-3"> <i class='bx bx-plus'></i> Add New Category</a>
             {{-- search form --}}
             <div class="card card-body shadow-lg">
                 <h3 class="d-inline align-middle"> Cari Category</h3>
@@ -94,7 +94,9 @@
                         {
                             sortable: false,
                             "render": function(data, type, full, meat) {
-                                return `<a href="{{ URL::to('category/category-edit') }}/${full.id}" class="btn btn-success"><i class='bx bxs-edit'></i> Edit</a>  <button class="btn btn-danger"><i class='bx bxs-trash=alt'></i> Delete</button>`
+                                return `
+                                <a href="{{ URL::to('category/category-edit') }}/${full.id}" class="btn btn-success"><i class='bx bxs-edit'></i> Edit</a>
+                                <button class="btn-delete btn btn-danger" data-id="${full.id}" data-name="${full.name}"><i class='bx bxs-trash=alt'></i> Delete</button>`
                             }
                         }
                     ]
@@ -126,6 +128,69 @@
                     categoryTable.columns().search('').clear().draw();
                 })
 
+                /* Delete Category */
+                $(document).on('click', '.btn-delete', function () {
+                    let categoryID = $(this).attr("data-id");
+                    let categoryName = $(this).attr("data-name");
+
+                    swal.fire({
+                        icon: 'question',
+                        title: 'Konfirmasi Penghapusan Category',
+                        text: 'Apakah anda yakin akan menghapus category ' + categoryName,
+                        showCancelButton: true,
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ URL::to('category/category-delete') }}" + '/' + categoryID,
+                                method: "GET",
+                                beforeSend: function () {
+                                    Swal.fire({
+                                        html: `
+                                                <div class="d-flex justify-content-center fs-4 ">
+                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                        Loading...
+                                                </div>
+                                            `,
+                                        showConfirmButton: false,
+                                        allowOutsideClick: false,
+                                        allowEscapeKey: false
+                                    })
+                                },
+                                success: function (response) {
+                                    console.log(response)
+                                    if (response.status === "success") {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Berhasil Menghapus Category',
+                                            text: response.message,
+                                            showConfirmButton: false,
+                                            allowOutsideClick: false,
+                                            allowEscapeKey: false
+                                        })
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 1250)
+                                    }
+
+                                    if (response.status === "failed") {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Gagal Menghapus Category',
+                                            text: response.message,
+                                            showConfirmButton: false,
+                                            allowOutsideClick: false,
+                                            allowEscapeKey: false
+                                        })
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 1250)
+                                    }
+                                }
+                            })
+                        }
+                    })
+                })
             }
         )
     </script>

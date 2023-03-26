@@ -47,14 +47,14 @@
                                 </select>
                             </div>
                             <div class="col-lg-4 col-12  row p-0 ms-1 mt-3">
-                                <label class="form-label p-0 fw-bold">Tanggal Refund Advance Receive</label>
+                                <label class="form-label p-0 fw-bold">Tanggal Penjualan</label>
                                 <div class="col-lg-6 col-12 p-0">
                                     <label class="form-label">Dari Tanggal</label>
-                                    <input type="date" class="form-control" name="refund-date-start">
+                                    <input type="date" class="form-control" name="buy-date-start">
                                 </div>
                                 <div class="col-lg-6 col-12 p-0">
                                     <label class="form-label">Sampai Tanggal</label>
-                                    <input type="date" class="form-control" name="refund-date-end">
+                                    <input type="date" class="form-control" name="buy-date-end">
                                 </div>
                             </div>
                             <div class="col-lg-12 col-12 row mt-3">
@@ -96,7 +96,6 @@
                                 <th>Produk</th>
                                 <th>Kategori Paket</th>
                                 <th>NOTES</th>
-                                <th>Tanggal Refund </th>
                                 <th>Cabang Refund</th>
                                 <th>QTY Refund Advance Receive</th>
                                 <th>IDR Refund Advance Receive</th>
@@ -122,7 +121,7 @@
                         $(".report-tr").empty();
                         $(".report-tr").append(`
                                         <td>${data.report.qty_refund}</td>
-                                        <td>${data.report.idr_refund}</td>
+                                        <td>${formatCurrencyPrice(data.report.idr_refund)}</td>
                         `)
                         /* Menampilkan data report */
                         return data.data
@@ -149,7 +148,6 @@
                     {"data" : "products[0].name"},
                     {"data" : "products[0].categories[0].name"},
                     {"data" : "notes"},
-                    {"data" : "refund_date"},
                     {"data" : "refund_branches[0].name"},
                     {"data" : "qty_refund"},
                     {
@@ -173,33 +171,38 @@
                 let nameFilter = $("[name=name]").val();
                 let branchFilter = $("[name=branch]").val();
                 /* period buy_date*/
-                let startRefundDate = $("[name=refund-date-start]").val();
-                let endRefundDate = $("[name=refund-date-end]").val();
+                let startBuyDate = $("[name=buy-date-start]").val();
+                let endBuyDate = $("[name=buy-date-end]").val();
 
-                let refundDateFilter = "";
+                let buyDateFilter = "";
+                let expiredDateFilter = "";
                 let startDate = "1980-01-01";
                 let endDate = "2999-01-01";
 
 
                 /* search filter */
-                if (startRefundDate.length > 0 || endRefundDate.length > 0  ) {
-                    if (startRefundDate.length < 1 ) {
-                        refundDateFilter = startDate + "||" + endRefundDate
+                if (startBuyDate.length > 0 || endBuyDate.length > 0  ) {
+                    if (startBuyDate.length < 1 ) {
+                        buyDateFilter = startDate + "||" + endBuyDate
                     }
 
-                    if (endRefundDate.length < 1 ) {
-                        refundDateFilter = startRefundDate + "||" + endDate
+                    if (endBuyDate.length < 1 ) {
+                        buyDateFilter = startBuyDate + "||" + endDate
                     }
 
-                    if (startRefundDate.length < 1 && endRefundDate.length < 1) {
-                        refundDateFilter = startDate + "||" + endDate
+                    if (startBuyDate.length < 1 && endBuyDate.length < 1) {
+                        buyDateFilter = startDate + "||" + endDate
                     }
 
-                    if (startRefundDate.length > 0 && endRefundDate.length > 0) {
-                        refundDateFilter = startRefundDate + "||" + endRefundDate
+                    if (startBuyDate.length > 0 && endBuyDate.length > 0) {
+                        buyDateFilter = startBuyDate + "||" + endBuyDate
                     }
-                    refundAdvanceReceiveTable.columns(2).search(refundDateFilter).draw();
+                    refundAdvanceReceiveTable.columns(2).search(buyDateFilter).draw();
                 }
+
+
+                /* search filter */
+
 
                 if (idFilter.length > 0 ) {
                     refundAdvanceReceiveTable.columns(3).search(idFilter).draw();

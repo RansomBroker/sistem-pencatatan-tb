@@ -73,6 +73,17 @@
                     <i class='bx bx-notepad'></i>Outstanding
                 </a>
             </li>
+
+            <li class="sidebar-header">
+                OTHERS
+            </li>
+
+            <li class="sidebar-item {{ Route::current()->uri == 'setting' ? 'active' : '' }} mb-5">
+                <a class="sidebar-link" href="{{ URL::to('setting') }}">
+                    <i class='bx bxs-wrench'></i>Setting
+                </a>
+            </li>
+
         </ul>
     </div>
 </nav>

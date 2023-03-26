@@ -9,6 +9,7 @@ use App\Http\Controllers\ExpiredController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\OutstandingController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,6 +67,9 @@ Route::middleware(['expired.check'])->group(function () {
 
         Route::get('/category/category-edit/{id}', 'categoryEditView');
         Route::post('/category/category-edit/edit', 'categoryEdit');
+
+        /* Delete Category route */
+        Route::get('/category/category-delete/{id}', 'categoryDelete');
     });
 
     /* Product */
@@ -78,6 +82,9 @@ Route::middleware(['expired.check'])->group(function () {
 
         Route::get('/product/product-edit/{id}', 'productEditView');
         Route::post('/product/product-edit/edit', 'productEdit');
+
+        /* Delete Product route */
+        Route::get('/product/product-delete/{id}', 'productDelete');
 
     });
 
@@ -101,6 +108,10 @@ Route::middleware(['expired.check'])->group(function () {
 
         /* search category by product id */
         Route::get('/category-get/{id}', 'getCategoryByID');
+
+        /* Delete Advance Receive */
+        Route::get('/advance-receive/advance-receive-delete/{id}', 'advanceReceiveDelete');
+
     });
 
     /* Consumption */
@@ -147,6 +158,12 @@ Route::middleware(['expired.check'])->group(function () {
     Route::controller(OutstandingController::class)->group(function() {
         Route::get('/outstanding', 'outstanding');
         Route::get('/outstanding/data-get', 'outstandingDataGET');
+    });
+
+    /* Settting */
+    Route::controller(SettingController::class)->group(function () {
+        Route::get('/setting', 'setting');
+        Route::post('/setting/import-excel/process', 'importExcelProcess');
     });
 
 });
