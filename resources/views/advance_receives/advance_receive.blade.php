@@ -559,7 +559,7 @@
                                     let exportExcel = setInterval(function () {
                                         $.ajax({
                                             async:false,
-                                            url: "{{ URL::to('advance-receive/advance-receive-export/check') }}" +"/" + data.batchID,
+                                            url: "{{ URL::to('advance-receive/advance-receive-export/check') }}" +"/" + data.batchID + "/" + data.name,
                                             method: 'GET',
                                             success: function (response) {
                                                 if (response.status === "success") {

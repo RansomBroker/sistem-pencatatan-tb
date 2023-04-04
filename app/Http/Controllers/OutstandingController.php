@@ -6,6 +6,7 @@ use App\Jobs\OutstandingExportJob;
 use App\Jobs\RefundExportJob;
 use App\Models\AdvanceReceive;
 use App\Models\Branch;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -68,8 +69,9 @@ class OutstandingController extends Controller
     public function outstandingExportExcel(Request $request)
     {
         try {
+            $name = Carbon::now()->timestamp;
             $batch = Bus::batch([
-                new  OutstandingExportJob($request->all())
+                new  OutstandingExportJob($request->all(), $name)
             ])->dispatch();
 
             // flush all failed job if exist
@@ -78,18 +80,20 @@ class OutstandingController extends Controller
 
             return response()->json([
                 'status' => 'success',
+                'name' => $name,
                 'batchID' => $batch->id
             ]);
 
         }catch (\Exception $e) {
             return response()->json([
                 'status' => 'failed',
+                'name' => $name,
                 'batchID' => ''
             ]);
         }
     }
 
-    public function exportCheckStatus($id)
+    public function exportCheckStatus($id, $name)
     {
         $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
         $exportBatchStatusFinished = Bus::findBatch($id)->finished();
@@ -105,13 +109,13 @@ class OutstandingController extends Controller
         return response()->json([
             'status' => 'success',
             'exportStatus' => $exportBatchStatusFinished,
-            'exportURL' => \url('outstanding/outstanding-export/download')
+            'exportURL' => \url('outstanding/outstanding-export/download/'.$name)
         ]);
     }
 
-    public function exportDownload()
+    public function exportDownload($name)
     {
-        return Storage::download('public/outstanding_report.xlsx');
+        return Storage::download('public/outstanding_report_'.$name.'.xlsx');
     }
 
 }

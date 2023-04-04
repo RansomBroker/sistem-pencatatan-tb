@@ -113,8 +113,8 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/advance-receive/advance-receive-export/excel', 'advanceReceiveExportExcel');
 
         /* Check  if job finished by timestamp */
-        Route::get('/advance-receive/advance-receive-export/check/{id}', 'exportCheckStatus');
-        Route::get('/advance-receive/advance-receive-export/download', 'exportDownload');
+        Route::get('/advance-receive/advance-receive-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/advance-receive/advance-receive-export/download/{name}', 'exportDownload');
     });
 
     /* Consumption */
@@ -136,8 +136,8 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/consumption/consumption-export/excel', 'consumptionExportExcel');
 
         /* Check if job finished */
-        Route::get('/consumption/consumption-export/check/{id}', 'exportCheckStatus');
-        Route::get('/consumption/consumption-export/download', 'exportDownload');
+        Route::get('/consumption/consumption-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/consumption/consumption-export/download/{name}', 'exportDownload');
 
     });
 
@@ -154,8 +154,8 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/expired/expired-export/excel', 'expiredExportExcel');
 
         /* Check if job finished */
-        Route::get('/expired/expired-export/check/{id}', 'exportCheckStatus');
-        Route::get('/expired/expired-export/download', 'exportDownload');
+        Route::get('/expired/expired-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/expired/expired-export/download/{name}', 'exportDownload');
     });
 
     /* Refund */
@@ -172,8 +172,8 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/refund/refund-export/excel', 'refundExportExcel');
 
         /* Check if job finished */
-        Route::get('/refund/refund-export/check/{id}', 'exportCheckStatus');
-        Route::get('/refund/refund-export/download', 'exportDownload');
+        Route::get('/refund/refund-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/refund/refund-export/download/{name}', 'exportDownload');
     });
 
     /* Outstanding */
@@ -185,8 +185,8 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/outstanding/outstanding-export/excel', 'outstandingExportExcel');
 
         /* Check if job finished */
-        Route::get('/outstanding/outstanding-export/check/{id}', 'exportCheckStatus');
-        Route::get('/outstanding/outstanding-export/download', 'exportDownload');
+        Route::get('/outstanding/outstanding-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/outstanding/outstanding-export/download/{name}', 'exportDownload');
 
     });
 

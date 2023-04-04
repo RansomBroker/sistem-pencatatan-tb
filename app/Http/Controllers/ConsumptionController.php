@@ -8,6 +8,7 @@ use App\Models\AdvanceReceive;
 use App\Models\Branch;
 use App\Models\Consumption;
 use App\Models\Customer;
+use Carbon\Carbon;
 use Dotenv\Repository\AdapterRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -534,8 +535,9 @@ class ConsumptionController extends Controller
     public function consumptionExportExcel(Request $request)
     {
         try {
+            $name = Carbon::now()->timestamp;
             $batch = Bus::batch([
-                new ConsumptionExportJob($request->all())
+                new ConsumptionExportJob($request->all(), $name)
             ])->dispatch();
 
             // flush all failed job if exist
@@ -544,18 +546,20 @@ class ConsumptionController extends Controller
 
             return response()->json([
                 'status' => 'success',
+                'name' => $name,
                 'batchID' => $batch->id
             ]);
 
         }catch (\Exception $e) {
             return response()->json([
                 'status' => 'failed',
+                'name' => $name,
                 'batchID' => ''
             ]);
         }
     }
 
-    public function exportCheckStatus($id)
+    public function exportCheckStatus($id, $name)
     {
         $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
         $exportBatchStatusFinished = Bus::findBatch($id)->finished();
@@ -570,14 +574,14 @@ class ConsumptionController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'exportStatus' => $exportBatchStatus,
-            'exportURL' => \url('consumption/consumption-export/download')
+            'exportStatus' => $exportBatchStatusFinished,
+            'exportURL' => \url('consumption/consumption-export/download/'. $name)
         ]);
     }
 
-    public function exportDownload()
+    public function exportDownload($name)
     {
-        return Storage::download('public/consumption_report.xlsx');
+        return Storage::download('public/consumption_report_'.$name.'.xlsx');
     }
 
     private function formatNumberPrice($n) {

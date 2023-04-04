@@ -7,6 +7,7 @@ use App\Jobs\ExpiredExportJob;
 use App\Jobs\RefundExportJob;
 use App\Models\AdvanceReceive;
 use App\Models\Branch;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -181,14 +182,15 @@ class RefundController extends Controller
         $branches = Branch::all();
         return response()->json([
            'data' => $branches
-        ]);;
+        ]);
     }
 
     public function refundExportExcel(Request $request)
     {
         try {
+            $name = Carbon::now()->timestamp;
             $batch = Bus::batch([
-                new  RefundExportJob($request->all())
+                new  RefundExportJob($request->all(), $name)
             ])->dispatch();
 
             // flush all failed job if exist
@@ -197,18 +199,20 @@ class RefundController extends Controller
 
             return response()->json([
                 'status' => 'success',
+                'name' => $name,
                 'batchID' => $batch->id
             ]);
 
         }catch (\Exception $e) {
             return response()->json([
                 'status' => 'failed',
+                'name' => $name,
                 'batchID' => ''
             ]);
         }
     }
 
-    public function exportCheckStatus($id)
+    public function exportCheckStatus($id, $name)
     {
         $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
         $exportBatchStatusFinished = Bus::findBatch($id)->finished();
@@ -224,12 +228,12 @@ class RefundController extends Controller
         return response()->json([
             'status' => 'success',
             'exportStatus' => $exportBatchStatusFinished,
-            'exportURL' => \url('refund/refund-export/download')
+            'exportURL' => \url('refund/refund-export/download/'.$name)
         ]);
     }
 
-    public function exportDownload()
+    public function exportDownload($name)
     {
-        return Storage::download('public/refund_report.xlsx');
+        return Storage::download('public/refund_report_'.$name.'.xlsx');
     }
 }

@@ -391,8 +391,9 @@ class AdvanceReceiveController extends Controller
     public function advanceReceiveExportExcel(Request $request)
     {
         try {
+            $name = Carbon::now()->timestamp;
             $batch = Bus::batch([
-                new AdvanceReceiveExportJob($request->all())
+                new AdvanceReceiveExportJob($request->all(), $name)
             ])->dispatch();
 
             // flush all failed job if exist
@@ -401,18 +402,20 @@ class AdvanceReceiveController extends Controller
 
             return response()->json([
                 'status' => 'success',
+                'name' => $name,
                 'batchID' => $batch->id
             ]);
 
         }catch (\Exception $e) {
             return response()->json([
                 'status' => 'failed',
+                'name' => $name,
                 'batchID' => ''
             ]);
         }
     }
 
-    public function exportCheckStatus($id)
+    public function exportCheckStatus($id, $name)
     {
         $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
         $exportBatchStatusFinished = Bus::findBatch($id)->finished();
@@ -427,14 +430,14 @@ class AdvanceReceiveController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'exportStatus' => $exportBatchStatus,
-            'exportURL' => \url('advance-receive/advance-receive-export/download')
+            'exportStatus' => $exportBatchStatusFinished,
+            'exportURL' => \url('advance-receive/advance-receive-export/download/'.$name)
         ]);
     }
 
-    public function exportDownload()
+    public function exportDownload($name)
     {
-        return Storage::download('public/advance_receive_report.xlsx');
+        return Storage::download('public/advance_receive_report_'.$name.'.xlsx');
     }
 
     private function formatNumberPrice($n)

@@ -16,14 +16,16 @@ class RefundExportJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $filter;
+    public $name;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($filter)
+    public function __construct($filter, $name)
     {
         $this->filter = $filter;
+        $this->name = $name;
     }
 
     /**
@@ -33,6 +35,6 @@ class RefundExportJob implements ShouldQueue
      */
     public function handle()
     {
-        (new RefundExport($this->filter))->store('public/refund_report.xlsx');
+        (new RefundExport($this->filter))->store('public/refund_report_'.$this->name.'.xlsx');
     }
 }

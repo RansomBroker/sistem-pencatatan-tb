@@ -16,14 +16,16 @@ class AdvanceReceiveExportJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $filter;
+    public $name;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($filter)
+    public function __construct($filter, $name)
     {
         $this->filter = $filter;
+        $this->name = $name;
     }
 
     /**
@@ -33,6 +35,6 @@ class AdvanceReceiveExportJob implements ShouldQueue
      */
     public function handle()
     {
-        (new AdvanceReceiveExport($this->filter))->store('public/advance_receive_report.xlsx');
+        (new AdvanceReceiveExport($this->filter))->store('public/advance_receive_report_'.$this->name.'.xlsx');
     }
 }

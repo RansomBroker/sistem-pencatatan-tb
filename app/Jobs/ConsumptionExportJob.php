@@ -17,14 +17,16 @@ class ConsumptionExportJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $filter;
+    public $name;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($filter)
+    public function __construct($filter, $name)
     {
         $this->filter = $filter;
+        $this->name = $name;
     }
 
     /**
@@ -34,6 +36,6 @@ class ConsumptionExportJob implements ShouldQueue
      */
     public function handle()
     {
-        (new ConsumptionExport($this->filter))->store('public/consumption_report.xlsx');
+        (new ConsumptionExport($this->filter))->store('public/consumption_report_'.$this->name.'.xlsx');
     }
 }

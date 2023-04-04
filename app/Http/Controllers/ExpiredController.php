@@ -179,8 +179,9 @@ class ExpiredController extends Controller
     public function expiredExportExcel(Request $request)
     {
         try {
+            $name = Carbon::now()->timestamp;
             $batch = Bus::batch([
-                new ExpiredExportJob($request->all())
+                new ExpiredExportJob($request->all(), $name)
             ])->dispatch();
 
             // flush all failed job if exist
@@ -189,18 +190,20 @@ class ExpiredController extends Controller
 
             return response()->json([
                 'status' => 'success',
+                'name' => $name,
                 'batchID' => $batch->id
             ]);
 
         }catch (\Exception $e) {
             return response()->json([
                 'status' => 'failed',
+                'name' => $name,
                 'batchID' => ''
             ]);
         }
     }
 
-    public function exportCheckStatus($id)
+    public function exportCheckStatus($id, $name)
     {
         $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
         $exportBatchStatusFinished = Bus::findBatch($id)->finished();
@@ -216,12 +219,12 @@ class ExpiredController extends Controller
         return response()->json([
             'status' => 'success',
             'exportStatus' => $exportBatchStatusFinished,
-            'exportURL' => \url('refund/refund-export/download')
+            'exportURL' => \url('expired/expired-export/download/'.$name)
         ]);
     }
 
-    public function exportDownload()
+    public function exportDownload($name)
     {
-        return Storage::download('public/expired_report.xlsx');
+        return Storage::download('public/expired_report_'. $name .'.xlsx');
     }
 }
