@@ -488,6 +488,7 @@
                                                     title: 'Export failed',
                                                     confirmButtonText: 'cancel',
                                                 })
+                                                clearInterval(exportExcel)
                                             }
                                         }
                                     })
