@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CategoryExportJob;
+use App\Jobs\CustomerExportJob;
 use App\Models\Category;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -103,5 +109,57 @@ class CategoryController extends Controller
                 'message' => 'Gagal menghapus category '.  $categoryName  .' dikarenakan category sedang digunakan'
             ]);
         }
+    }
+
+    public function categoryExportExcel(Request $request)
+    {
+        try {
+            $name = Carbon::now()->timestamp;
+            $batch = Bus::batch([
+                new CategoryExportJob($request->all(), $name)
+            ])->dispatch();
+
+            // flush all failed job if exist
+            Artisan::call("queue:flush");
+            Artisan::call("queue:work --stop-when-empty ");
+
+            return response()->json([
+                'status' => 'success',
+                'name' => $name,
+                'batchID' => $batch->id
+            ]);
+
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'name' => $name,
+                'batchID' => ''
+            ]);
+        }
+    }
+
+    public function exportCheckStatus($id, $name)
+    {
+        $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
+        $exportBatchStatusFinished = Bus::findBatch($id)->finished();
+
+        if($exportBatchStatusFinished == 1 && $exportBatchStatusCanceled ==  1) {
+            return response()->json([
+                'status' => 'failed',
+                'exportStatus' => $exportBatchStatusFinished,
+                'exportURL' => null
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'exportStatus' => $exportBatchStatusFinished,
+            'exportURL' => \url('category/category-export/download/'.$name)
+        ]);
+    }
+
+    public function exportDownload($name)
+    {
+        return Storage::download('public/category_'.$name.'.xlsx');
     }
 }

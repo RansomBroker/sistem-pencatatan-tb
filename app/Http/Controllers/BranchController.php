@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\BranchExportJob;
 use App\Models\Branch;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 
 class BranchController extends Controller
 {
@@ -130,5 +135,57 @@ class BranchController extends Controller
                 'message' => 'Gagal menghapus cabang '.  $branchName  .' dikarenakan cabang masih memiliki data'
             ]);
         }
+    }
+
+    public function branchExportExcel(Request $request)
+    {
+        try {
+            $name = Carbon::now()->timestamp;
+            $batch = Bus::batch([
+                new BranchExportJob($request->all(), $name)
+            ])->dispatch();
+
+            // flush all failed job if exist
+            Artisan::call("queue:flush");
+            Artisan::call("queue:work --stop-when-empty ");
+
+            return response()->json([
+                'status' => 'success',
+                'name' => $name,
+                'batchID' => $batch->id
+            ]);
+
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'name' => $name,
+                'batchID' => ''
+            ]);
+        }
+    }
+
+    public function exportCheckStatus($id, $name)
+    {
+        $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
+        $exportBatchStatusFinished = Bus::findBatch($id)->finished();
+
+        if($exportBatchStatusFinished == 1 && $exportBatchStatusCanceled ==  1) {
+            return response()->json([
+                'status' => 'failed',
+                'exportStatus' => $exportBatchStatusFinished,
+                'exportURL' => null
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'exportStatus' => $exportBatchStatusFinished,
+            'exportURL' => \url('branch/branch-export/download/'.$name)
+        ]);
+    }
+
+    public function exportDownload($name)
+    {
+        return Storage::download('public/branch_'.$name.'.xlsx');
     }
 }

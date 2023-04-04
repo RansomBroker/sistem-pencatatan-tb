@@ -55,6 +55,7 @@
                         </div>
                         <button type="submit" class="btn btn-info btn-submit col-lg-2 col-12 me-1"><i class='bx bx-search' ></i> Cari</button>
                         <button type="submit" class="btn btn-danger btn-reset col-lg-2 col-12"><i class='bx bx-reset'></i> Reset Filter</button>
+                        <button type="submit" class="btn-export btn btn-success col-lg-2 col-12 mx-1 align-self-end" data-type="excel"><i class='bx bx-spreadsheet'></i> Export As Excel File</button>
                     </div>
                 </form>
             </div>
@@ -222,10 +223,108 @@
                         branchTable.columns(6).search(companyFilter).draw()
                     }
                 })
+
                 $('.btn-reset').on('click', function (e) {
                     e.preventDefault();
                     $("#filter-form")[0].reset();
                     branchTable.columns().search('').clear().draw();
+                })
+
+                /* btn export */
+                $('.btn-export').on('click', function(e) {
+                    e.preventDefault();
+                    let nameFilter = $("[name=name]").val();
+                    let branchFilter = $("[name=branch]").val();
+                    let addressFilter = $("[name=address]").val();
+                    let telephoneFilter = $("[name=tel]").val();
+                    let npwpFilter = $("[name=npwp]").val();
+                    let companyFilter = $("[name=company]").val();
+
+                    $.ajax({
+                        url: "{{ URL::to('branch/branch-export/excel') }}",
+                        headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'name-filter': nameFilter,
+                            'branch-filter': branchFilter,
+                            'address-filter': addressFilter,
+                            'telephone-filter': telephoneFilter,
+                            'npwp-filter': npwpFilter,
+                            'company-filter': companyFilter
+                        },
+                        beforeSend: function () {
+                            Swal.fire({
+                                html: `
+                                                <div class="d-flex justify-content-center fs-4 ">
+                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                        Loading...
+                                                </div>
+                                            `,
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                allowEscapeKey: false
+                            })
+                        },
+                        success: function(data)
+                        {
+                            if (data.status === "success") {
+                                Swal.fire({
+                                    html: `
+                                                <div class="d-flex justify-content-center fs-4 ">
+                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                        Silahkan Tunggu beberapa saat, mohon untuk tidak refresh halaman ini sampai proses selesai
+                                                </div>
+                                            `,
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                })
+
+                                // check status every sec
+                                let exportExcel = setInterval(function () {
+                                    $.ajax({
+                                        async:false,
+                                        url: "{{ URL::to('branch/branch-export/check') }}" +"/" + data.batchID + "/" + data.name,
+                                        method: 'GET',
+                                        success: function (response) {
+                                            if (response.status === "success") {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Export Success',
+                                                    confirmButtonText: 'Download',
+                                                    allowOutsideClick: false
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        window.open(response.exportURL, '_blank');
+                                                    }
+                                                })
+                                                clearInterval(exportExcel)
+                                            }else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Export failed',
+                                                    confirmButtonText: 'cancel',
+                                                })
+                                                clearInterval(exportExcel)
+                                            }
+                                        }
+                                    })
+                                }, 1500);
+
+                                clearInterval();
+                            } else {
+                                Swal.fire(
+                                    'Error proses export',
+                                    'Terjadi Error Saat Proses Export',
+                                    'error'
+                                )
+                            }
+                        }
+                    })
+
+
+
                 })
             }
         )

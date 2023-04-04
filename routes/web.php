@@ -41,6 +41,13 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/branch/branch-edit/edit', 'branchEdit');
 
         Route::get('/branch/branch-delete/{id}', 'branchDelete');
+
+        /* Export Branch */
+        Route::post('/branch/branch-export/excel', 'branchExportExcel');
+
+        /* Check  if job finished by timestamp */
+        Route::get('/branch/branch-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/branch/branch-export/download/{name}', 'exportDownload');
     });
 
     /* customers */
@@ -55,6 +62,13 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/customer/customer-edit/edit', 'customerEdit');
 
         Route::get('/customer/customer-delete/{id}', 'customerDelete');
+
+        /* Export Branch */
+        Route::post('/customer/customer-export/excel', 'customerExportExcel');
+
+        /* Check  if job finished by timestamp */
+        Route::get('/customer/customer-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/customer/customer-export/download/{name}', 'exportDownload');
     });
 
     /* Category */
@@ -70,6 +84,13 @@ Route::middleware(['expired.check'])->group(function () {
 
         /* Delete Category route */
         Route::get('/category/category-delete/{id}', 'categoryDelete');
+
+        /* Export Branch */
+        Route::post('/category/category-export/excel', 'categoryExportExcel');
+
+        /* Check  if job finished by timestamp */
+        Route::get('/category/category-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/category/category-export/download/{name}', 'exportDownload');
     });
 
     /* Product */
@@ -85,6 +106,13 @@ Route::middleware(['expired.check'])->group(function () {
 
         /* Delete Product route */
         Route::get('/product/product-delete/{id}', 'productDelete');
+
+        /* Export Branch */
+        Route::post('/product/product-export/excel', 'productExportExcel');
+
+        /* Check  if job finished by timestamp */
+        Route::get('/product/product-export/check/{id}/{name}', 'exportCheckStatus');
+        Route::get('/product/product-export/download/{name}', 'exportDownload');
 
     });
 
