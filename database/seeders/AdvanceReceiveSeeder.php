@@ -15,22 +15,27 @@ class AdvanceReceiveSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('advance_receives')->insert([
-            'product_id' => 25,
-            'customer_id' => 5,
-            'branch_id' => 501,
-            'type' => "REPEATER",
-            'buy_price' => 500000,
-            'net_sale' => 4504505,
-            'tax' => 495495,
-            'unit_price' => 450450,
-            'payment' => 'QRIS',
-            'qty' => 10,
-            'buy_date' => '2021-03-29',
-            'expired_date'=> '2023-03-29',
-            'status' => 'AVAILABLE'
-        ]);
+        for ($i = 0; $i < 500000; $i++) {
+            $advanceReceiveID = DB::table('advance_receives')->insertGetId([
+                'product_id' => 3,
+                'customer_id' => 2,
+                'branch_id' => 2,
+                'type' => "REPEATER",
+                'buy_price' => 500000,
+                'net_sale' => 4504505,
+                'tax' => 495495,
+                'unit_price' => 450450,
+                'payment' => 'QRIS',
+                'qty' => 10,
+                'buy_date' => '2023-03-29',
+                'expired_date'=> '2025-03-29',
+                'status' => 'AVAILABLE'
+            ]);
 
+            DB::table('consumptions')->insert([
+                'advance_receive_id' => $advanceReceiveID,
+            ]);
+        }
         /*DB::table('advance_receives')->insert([
             'product_id' => 21,
             'customer_id' => 1,

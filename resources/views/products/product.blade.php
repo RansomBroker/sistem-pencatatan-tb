@@ -63,15 +63,6 @@
                             <th>Action</th>
                         </tr>
                         </thead>
-                        <tfoot>
-                        <tr>
-                            <th>No</th>
-                            <th>Product ID</th>
-                            <th>Category</th>
-                            <th>Name</th>
-                            <th>Action</th>
-                        </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>

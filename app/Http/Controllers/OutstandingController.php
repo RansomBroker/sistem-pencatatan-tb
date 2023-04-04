@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\OutstandingExportJob;
+use App\Jobs\RefundExportJob;
 use App\Models\AdvanceReceive;
 use App\Models\Branch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 
 class OutstandingController extends Controller
 {
@@ -58,6 +63,55 @@ class OutstandingController extends Controller
             'data' => $data,
             'report' => $report
         ]);
+    }
+
+    public function outstandingExportExcel(Request $request)
+    {
+        try {
+            $batch = Bus::batch([
+                new  OutstandingExportJob($request->all())
+            ])->dispatch();
+
+            // flush all failed job if exist
+            Artisan::call("queue:flush");
+            Artisan::call("queue:work --stop-when-empty ");
+
+            return response()->json([
+                'status' => 'success',
+                'batchID' => $batch->id
+            ]);
+
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'batchID' => ''
+            ]);
+        }
+    }
+
+    public function exportCheckStatus($id)
+    {
+        $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
+        $exportBatchStatusFinished = Bus::findBatch($id)->finished();
+
+        if($exportBatchStatusFinished == 1 && $exportBatchStatusCanceled ==  1) {
+            return response()->json([
+                'status' => 'failed',
+                'exportStatus' => $exportBatchStatusFinished,
+                'exportURL' => null
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'exportStatus' => $exportBatchStatusFinished,
+            'exportURL' => \url('outstanding/outstanding-export/download')
+        ]);
+    }
+
+    public function exportDownload()
+    {
+        return Storage::download('public/outstanding_report.xlsx');
     }
 
 }

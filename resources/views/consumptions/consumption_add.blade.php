@@ -104,233 +104,393 @@
 @section('custom-js')
     <script>
         $(document).ready(function () {
-                /* initiate table */
-                $.ajax({
-                    url: "{{ URL::to("consumption/consumption-get-available") }}",
-                    success: function (result) {
-                        var rows_selected = [];
-                        let consumptionTable = $("#consumption-table").DataTable({
-                            bProcessing: true,
-                            bServerSide: true,
-                            ajax: {
-                                url: "{{ URL::to('consumption/consumption-get-available') }}",
-                                headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
-                                type: 'GET',
-                                dataSrc: function (data) {
-                                    return data.data
-                                }
-                            },
-                            language: {
-                                processing: `<div class="spinner-border text-secondary" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                            </div>`,
-                            },
-                            columns: result.columns,
-                            columnDefs: [{
-                                targets: 0,
-                                searchable :false,
-                                orderable :false,
-                                width :'1%',
-                                className: 'dt-body-center',
-                                render: function (data, type, full, meta){
-                                    return '<input type="checkbox">';
-                                }
-                            }],
-                            order: [1, 'asc'],
-                            rowCallback : function(row, data, dataIndex){
-                                // Get row ID
-                                var rowId = data.id;
+                /* inisialisasi data columns */
+                const column = [
+                    {
+                        'data' : 'action',
+                        'title' : 'Action'
+                    },
+                    {
+                        'data' : 'branch',
+                        'title' : 'Cabang penjualan'
+                    },
+                    {
+                        'data' : 'buy_date',
+                        'title' : 'Tanggal Penjualan'
+                    },
+                    {
+                        'data' : 'expired_date',
+                        'title' : 'Expired Date'
+                    },
+                    {
+                        'data' : 'customer_id',
+                        'title' : 'ID Customer'
+                    },
+                    {
+                        'data' : 'customer_name',
+                        'title' : 'Nama Customer'
+                    },
+                    {
+                        'data' : 'type',
+                        'title' : 'Tipe'
+                    },
+                    {
+                        'data' : 'buy_price',
+                        'title' : 'IDR Harga Beli'
+                    },
+                    {
+                        'data' : 'net_sales',
+                        'title' : 'IDR Net Sales'
+                    },
+                    {
+                        'data' : 'tax',
+                        'title' : 'IDR PPN'
+                    },
+                    {
+                        'data' : 'payment',
+                        'title' : 'Pembayaran'
+                    },
+                    {
+                        'data' : 'qty',
+                        'title' : 'Qty Produk'
+                    },
+                    {
+                        'data' : 'unit_price',
+                        'title' : 'IDR Harga Satuan'
+                    },
+                    {
+                        'data' : 'product',
+                        'title' : 'Produk'
+                    },
+                    {
+                        'data' : 'memo',
+                        'title' : 'Memo/Model'
+                    },
+                    {
+                        'data' : 'category',
+                        'title' : 'Kategory Produk'
+                    },
+                    {
+                        'data' : 'notes',
+                        'title' : 'Notes'
+                    },
+                    {
+                        'data' : 'consumption-date-1',
+                        'title' : 'Tanggal Pemakaian Ke-1'
+                    },
+                    {
+                        'data' : 'consumption-branch-1',
+                        'title' : 'Tempat Pemakaian Ke-1'
+                    },
+                    {
+                        'data' : 'consumption-date-2',
+                        'title' : 'Tanggal Pemakaian Ke-2'
+                    },
+                    {
+                        'data' : 'consumption-branch-2',
+                        'title' : 'Tempat Pemakaian Ke-2'
+                    },
+                    {
+                        'data' : 'consumption-date-3',
+                        'title' : 'Tanggal Pemakaian Ke-3'
+                    },
+                    {
+                        'data' : 'consumption-branch-3',
+                        'title' : 'Tempat Pemakaian Ke-3'
+                    },
+                    {
+                        'data' : 'consumption-date-4',
+                        'title' : 'Tanggal Pemakaian Ke-4'
+                    },
+                    {
+                        'data' : 'consumption-branch-4',
+                        'title' : 'Tempat Pemakaian Ke-4'
+                    },
+                    {
+                        'data' : 'consumption-date-5',
+                        'title' : 'Tanggal Pemakaian Ke-5'
+                    },
+                    {
+                        'data' : 'consumption-branch-5',
+                        'title' : 'Tempat Pemakaian Ke-5'
+                    },
+                    {
+                        'data' : 'consumption-date-6',
+                        'title' : 'Tanggal Pemakaian Ke-6'
+                    },
+                    {
+                        'data' : 'consumption-branch-6',
+                        'title' : 'Tempat Pemakaian Ke-6'
+                    },
+                    {
+                        'data' : 'consumption-date-7',
+                        'title' : 'Tanggal Pemakaian Ke-7'
+                    },
+                    {
+                        'data' : 'consumption-branch-7',
+                        'title' : 'Tempat Pemakaian Ke-7'
+                    },
+                    {
+                        'data' : 'consumption-date-8',
+                        'title' : 'Tanggal Pemakaian Ke-8'
+                    },
+                    {
+                        'data' : 'consumption-branch-8',
+                        'title' : 'Tempat Pemakaian Ke-8'
+                    },
+                    {
+                        'data' : 'consumption-date-9',
+                        'title' : 'Tanggal Pemakaian Ke-9'
+                    },
+                    {
+                        'data' : 'consumption-branch-9',
+                        'title' : 'Tempat Pemakaian Ke-9'
+                    },
+                    {
+                        'data' : 'consumption-date-10',
+                        'title' : 'Tanggal Pemakaian Ke-10'
+                    },
+                    {
+                        'data' : 'consumption-branch-10',
+                        'title' : 'Tempat Pemakaian Ke-10'
+                    },
+                    {
+                        'data' : 'consumption-date-11',
+                        'title' : 'Tanggal Pemakaian Ke-11'
+                    },
+                    {
+                        'data' : 'consumption-branch-11',
+                        'title' : 'Tempat Pemakaian Ke-11'
+                    },
+                    {
+                        'data' : 'consumption-date-12',
+                        'title' : 'Tanggal Pemakaian Ke-12'
+                    },
+                    {
+                        'data' : 'consumption-branch-12',
+                        'title' : 'Tempat Pemakaian Ke-12'
+                    },
+                ]
+                var rows_selected = [];
+                let consumptionTable = $("#consumption-table").DataTable({
+                    bProcessing: true,
+                    bServerSide: true,
+                    ajax: {
+                        url: "{{ URL::to('consumption/consumption-get-available') }}",
+                        headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
+                        type: 'POST',
+                        dataSrc: function (data) {
+                            return data.data
+                        }
+                    },
+                    language: {
+                        processing: `<div class="spinner-border text-secondary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                                </div>`,
+                    },
+                    columns: column,
+                    columnDefs: [{
+                        targets: 0,
+                        searchable :false,
+                        orderable :false,
+                        width :'1%',
+                        className: 'dt-body-center',
+                        render: function (data, type, full, meta){
+                            return '<input type="checkbox">';
+                        }
+                    }],
+                    order: [1, 'asc'],
+                    rowCallback : function(row, data, dataIndex){
+                        // Get row ID
+                        var rowId = data.id;
 
-                                // If row ID is in the list of selected row IDs
-                                if($.inArray(rowId, rows_selected) !== -1){
-                                    $(row).find('input[type="checkbox"]').prop('checked', true);
-                                    $(row).addClass('selected');
-                                }
-                            }
+                        // If row ID is in the list of selected row IDs
+                        if($.inArray(rowId, rows_selected) !== -1){
+                            $(row).find('input[type="checkbox"]').prop('checked', true);
+                            $(row).addClass('selected');
+                        }
+                    }
+                })
+
+                $("#consumption-table_filter").hide()
+                $("#consumption-table thead tr .dt-body-center").html(`<input name="select_all" value="1" type="hidden">Action`)
+
+
+                // Handle click on checkbox
+                $('#consumption-table tbody').on('click', 'input[type="checkbox"]', function(e){
+                    var $row = $(this).closest('tr');
+
+                    // Get row data
+                    var data = consumptionTable.row($row).data();
+
+                    // Get row ID
+                    var rowId = data.id;
+
+                    // Determine whether row ID is in the list of selected row IDs
+                    var index = $.inArray(rowId, rows_selected);
+
+                    // If checkbox is checked and row ID is not in list of selected row IDs
+                    if(this.checked && index === -1){
+                        rows_selected.push(rowId);
+
+                        // Otherwise, if checkbox is not checked and row ID is in list of selected row IDs
+                    } else if (!this.checked && index !== -1){
+                        rows_selected.splice(index, 1);
+                    }
+
+                    if(this.checked){
+                        $row.addClass('selected');
+                    } else {
+                        $row.removeClass('selected');
+                    }
+
+                    // tampilkan data
+                    selectedConsumption(rows_selected);
+                    // Prevent click event from propagating to parent
+                    e.stopPropagation();
+                });
+
+                // reset selected data
+                $('.btn-reset-submit-form').on('click', function (e) {
+                    e.preventDefault();
+                    $("#consumption-form")[0].reset();
+                    var $row = $('input[type="checkbox"]').closest('tr');
+
+                    // Get row data
+                    var data = consumptionTable.row($row).data();
+
+                    // Get row ID
+                    var rowId = data.id;
+
+                    // Determine whether row ID is in the list of selected row IDs
+                    var index = $.inArray(rowId, rows_selected);
+
+                    // If checkbox is checked and row ID is not in list of selected row IDs
+                    rows_selected = [];
+
+                    console.log(rows_selected);
+                    $row.removeClass('selected');
+                    $('input[type="checkbox"]').prop('checked', false);
+
+                    selectedConsumption(rows_selected);
+                    // Prevent click event from propagating to parent
+                    e.stopPropagation();
+
+                })
+
+                // tambah data
+                $("#consumption-form").on("submit", function (e) {
+                    e.preventDefault();
+                    let consumptionDate = $("input[name=consumption-date]").val();
+                    let branchID = $("#branch-id option:selected").val()
+
+                    if (rows_selected.length == 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Data Tidak Boleh Kosong',
+                            text: 'Silahkan Pilih Data Consumption',
                         })
+                        return;
+                    }
 
-                        $("#consumption-table_filter").hide()
-                        $("#consumption-table thead tr .dt-body-center").html(`<input name="select_all" value="1" type="hidden">Action`)
-
-
-                        // Handle click on checkbox
-                        $('#consumption-table tbody').on('click', 'input[type="checkbox"]', function(e){
-                            var $row = $(this).closest('tr');
-
-                            // Get row data
-                            var data = consumptionTable.row($row).data();
-
-                            // Get row ID
-                            var rowId = data.id;
-
-                            // Determine whether row ID is in the list of selected row IDs
-                            var index = $.inArray(rowId, rows_selected);
-
-                            // If checkbox is checked and row ID is not in list of selected row IDs
-                            if(this.checked && index === -1){
-                                rows_selected.push(rowId);
-
-                                // Otherwise, if checkbox is not checked and row ID is in list of selected row IDs
-                            } else if (!this.checked && index !== -1){
-                                rows_selected.splice(index, 1);
-                            }
-
-                            if(this.checked){
-                                $row.addClass('selected');
-                            } else {
-                                $row.removeClass('selected');
-                            }
-
-                            // tampilkan data
-                            selectedConsumption(rows_selected);
-                            // Prevent click event from propagating to parent
-                            e.stopPropagation();
-                        });
-
-                        // reset selected data
-                        $('.btn-reset-submit-form').on('click', function (e) {
-                            e.preventDefault();
-                            $("#consumption-form")[0].reset();
-                            var $row = $('input[type="checkbox"]').closest('tr');
-
-                            // Get row data
-                            var data = consumptionTable.row($row).data();
-
-                            // Get row ID
-                            var rowId = data.id;
-
-                            // Determine whether row ID is in the list of selected row IDs
-                            var index = $.inArray(rowId, rows_selected);
-
-                            // If checkbox is checked and row ID is not in list of selected row IDs
-                            rows_selected = [];
-
-                            console.log(rows_selected);
-                            $row.removeClass('selected');
-                            $('input[type="checkbox"]').prop('checked', false);
-
-                            selectedConsumption(rows_selected);
-                            // Prevent click event from propagating to parent
-                            e.stopPropagation();
-
-                        })
-
-                        // tambah data
-                        $("#consumption-form").on("submit", function (e) {
-                            e.preventDefault();
-                            let consumptionDate = $("input[name=consumption-date]").val();
-                            let branchID = $("#branch-id option:selected").val()
-
-                            if (rows_selected.length == 0) {
+                    /* make request to server */
+                    $.ajax({
+                        url: "{{ URL::to('consumption/consumption-add/add') }}",
+                        headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
+                        method: 'POST',
+                        data: {
+                            'consumption-date' : consumptionDate,
+                            'branch-id' : branchID,
+                            'advance-receive-id-list' :rows_selected
+                        },
+                        beforeSend: function () {
+                            Swal.fire({
+                                html: `
+                                                <div class="d-flex justify-content-center fs-4 ">
+                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                        Loading...
+                                                </div>
+                                            `,
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                allowEscapeKey: false
+                            })
+                        },
+                        success: function (data) {
+                            if (data.status === "success" ) {
                                 Swal.fire({
-                                    icon: 'error',
-                                    title: 'Data Tidak Boleh Kosong',
-                                    text: 'Silahkan Pilih Data Consumption',
-                                })
-                                return;
-                            }
-
-                            /* make request to server */
-                            $.ajax({
-                                url: "{{ URL::to('consumption/consumption-add/add') }}",
-                                headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
-                                method: 'POST',
-                                data: {
-                                    'consumption-date' : consumptionDate,
-                                    'branch-id' : branchID,
-                                    'advance-receive-id-list' :rows_selected
-                                },
-                                beforeSend: function () {
-                                    Swal.fire({
-                                        html: `
-                                            <div class="d-flex justify-content-center fs-4 ">
-                                                  <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
-                                                    Loading...
-                                            </div>
-                                        `,
-                                        showConfirmButton: false,
-                                        allowOutsideClick: false,
-                                        allowEscapeKey: false
-                                    })
-                                },
-                                success: function (data) {
-                                    if (data.status === "success" ) {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Berhasil menambahkan Consumption',
-                                            text: 'Consumption berhasil ditambahkan',
-                                            showConfirmButton: true,
-                                            allowOutsideClick: false,
-                                            allowEscapeKey: false
-                                        }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                window.location.reload();
-                                            }
-                                        })
+                                    icon: 'success',
+                                    title: 'Berhasil menambahkan Consumption',
+                                    text: 'Consumption berhasil ditambahkan',
+                                    showConfirmButton: true,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
                                         window.location.reload();
                                     }
-                                }
-                            })
-                        })
-
-                        // filter data
-                        $('.btn-submit').on('click', function (e) {
-                            e.preventDefault()
-                            let idFilter = $("[name=id]").val();
-                            let nameFilter = $("[name=name]").val();
-                            let branchFilter = $("[name=branch]").val();
-                            /* period buy_date*/
-                            let startConsumptionDate = $("[name=consumption-date-start]").val();
-                            let endConsumptionDate = $("[name=consumption-date-end]").val();
-
-                            let consumptionDateFilter = "";
-                            let startDate = "1980-01-01";
-                            let endDate = "2999-01-01";
-
-
-                            /* search filter */
-                            if (startConsumptionDate.length > 0 || endConsumptionDate.length > 0  ) {
-                                if (startConsumptionDate.length < 1 ) {
-                                    consumptionDateFilter = startDate + "||" + endConsumptionDate
-                                }
-
-                                if (endConsumptionDate.length < 1 ) {
-                                    consumptionDateFilter = startConsumptionDate+ "||" + endDate
-                                }
-
-                                if (startConsumptionDate.length < 1 && endConsumptionDate.length < 1) {
-                                    consumptionDateFilter = startDate + "||" + endDate
-                                }
-
-                                if (startConsumptionDate.length > 0 && endConsumptionDate.length > 0) {
-                                    consumptionDateFilter = startConsumptionDate + "||" + endConsumptionDate
-                                }
-                                consumptionTable.columns(2).search(consumptionDateFilter).draw();
+                                })
+                                window.location.reload();
                             }
+                        }
+                    })
+                })
 
-                            if (idFilter.length > 0 ) {
-                                consumptionTable.columns(4).search(idFilter).draw();
-                            }
+                // filter data
+                $('.btn-submit').on('click', function (e) {
+                    e.preventDefault()
+                    let idFilter = $("[name=id]").val();
+                    let nameFilter = $("[name=name]").val();
+                    let branchFilter = $("[name=branch]").val();
+                    /* period buy_date*/
+                    let startConsumptionDate = $("[name=consumption-date-start]").val();
+                    let endConsumptionDate = $("[name=consumption-date-end]").val();
 
-                            if (nameFilter.length > 0) {
-                                consumptionTable.columns(5).search(nameFilter).draw();
-                            }
+                    let consumptionDateFilter = "";
+                    let startDate = "1980-01-01";
+                    let endDate = "2999-01-01";
 
-                            if (branchFilter.length > 0) {
-                                consumptionTable.columns(1).search(branchFilter).draw();
-                            }
 
-                        })
+                    /* search filter */
+                    if (startConsumptionDate.length > 0 || endConsumptionDate.length > 0  ) {
+                        if (startConsumptionDate.length < 1 ) {
+                            consumptionDateFilter = startDate + "||" + endConsumptionDate
+                        }
 
-                        // reset form pencarian
-                        $('.btn-reset').on('click', function (e) {
-                            e.preventDefault();
-                            $("#filter-form")[0].reset();
-                            consumptionTable.columns().search('').clear().draw();
-                        })
+                        if (endConsumptionDate.length < 1 ) {
+                            consumptionDateFilter = startConsumptionDate+ "||" + endDate
+                        }
 
+                        if (startConsumptionDate.length < 1 && endConsumptionDate.length < 1) {
+                            consumptionDateFilter = startDate + "||" + endDate
+                        }
+
+                        if (startConsumptionDate.length > 0 && endConsumptionDate.length > 0) {
+                            consumptionDateFilter = startConsumptionDate + "||" + endConsumptionDate
+                        }
+                        consumptionTable.columns(2).search(consumptionDateFilter).draw();
                     }
-                });
+
+                    if (idFilter.length > 0 ) {
+                        consumptionTable.columns(4).search(idFilter).draw();
+                    }
+
+                    if (nameFilter.length > 0) {
+                        consumptionTable.columns(5).search(nameFilter).draw();
+                    }
+
+                    if (branchFilter.length > 0) {
+                        consumptionTable.columns(1).search(branchFilter).draw();
+                    }
+
+                })
+
+                // reset form pencarian
+                $('.btn-reset').on('click', function (e) {
+                    e.preventDefault();
+                    $("#filter-form")[0].reset();
+                    consumptionTable.columns().search('').clear().draw();
+                })
 
                 function selectedConsumption(selectedRows) {
                     $.ajax({

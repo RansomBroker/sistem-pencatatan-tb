@@ -93,21 +93,6 @@
                             <th>Action</th>
                         </tr>
                         </thead>
-                        <tfoot>
-                        <tr>
-                            <th>No</th>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Nickname</th>
-                            <th>Alamat</th>
-                            <th>Tanggal Lahir</th>
-                            <th>No.Telp</th>
-                            <th>No. KTP</th>
-                            <th>No. Rekening</th>
-                            <th>Email</th>
-                            <th>Action</th>
-                        </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>

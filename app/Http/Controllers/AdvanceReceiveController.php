@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AdvanceReceiveExport;
+use App\Jobs\AdvanceReceiveExportJob;
 use App\Models\AdvanceReceive;
 use App\Models\Branch;
 use App\Models\Category;
@@ -11,6 +13,11 @@ use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use Sabberworm\CSS\Value\URL;
 
 class AdvanceReceiveController extends Controller
 {
@@ -19,163 +26,6 @@ class AdvanceReceiveController extends Controller
         $branches = Branch::all();
         $data['branches'] = $branches;
         return view('advance_receives/advance_receive', $data);
-    }
-
-    public function getColumn()
-    {
-        // generate column header
-        $dataWithoutLimit = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches')
-            ->get();
-
-        // create columns header for consumption list
-        $consumptionsHeaderRaw = [];
-        foreach ($dataWithoutLimit as $advanceReceive) {
-            foreach ($advanceReceive->consumptions as $consumptions) {
-                foreach ($consumptions->history as $history) {
-                    $consumptionsHeaderRaw[] = [
-                        [
-                            'data' => 'consumption-date-'.$history->used_count,
-                            'title' => 'tanggal pemakaian ke-'. $history->used_count,
-                        ],
-                        [
-                            'data' => 'consumption-branch-'.$history->used_count,
-                            'title' => 'tempat consumption  ke-'. $history->used_count,
-                        ]
-
-                    ];
-                }
-            }
-        }
-
-        $consumptionsHeader = array_map("unserialize", array_unique(array_map("serialize", $consumptionsHeaderRaw)));
-
-        // membuat columns agar tidak perlu di proses banyak oleh client
-        $consumptionsColumns = [];
-        foreach ($consumptionsHeader as $header) {
-            foreach ($header as $data) {
-                $consumptionsColumns[] = $data;
-            }
-        }
-
-        $columnsShow = [
-            [
-                'data' => 'action',
-                'title' => 'Action'
-            ],
-            [
-                'data' => 'branch',
-                'title' => 'Cabang penjualan'
-            ],
-            [
-                'data' => 'buy_date',
-                'title' => 'Tanggal penjualan'
-            ],
-            [
-                'data' => 'expired_date',
-                'title' => 'Expired Date'
-            ],
-            [
-                'data' => 'customer_id',
-                'title' => 'ID Customer'
-            ],
-            [
-                'data' => 'customer_name',
-                'title' => 'Nama Customer'
-            ],
-            [
-                'data' => 'type',
-                'title' => 'Tipe'
-            ],
-            [
-                'data' => 'buy_price',
-                'title' => 'IDR Harga Beli'
-            ],
-            [
-                'data' => 'net_sales',
-                'title' => 'IDR Net Sales'
-            ],
-            [
-                'data' => 'tax',
-                'title' => 'IDR PPN'
-            ],
-            [
-                'data' => 'payment',
-                'title' => 'Pembayaran'
-            ],
-            [
-                'data' => 'qty',
-                'title' => 'Qty Produk'
-            ],
-            [
-                'data' => 'unit_price',
-                'title' => 'IDR Harga Satuan'
-            ],
-            [
-                'data' => 'product',
-                'title' => 'Produk'
-            ],
-            [
-                'data' => 'memo',
-                'title' => 'Memo/Model'
-            ],
-            [
-                'data' => 'category',
-                'title' => 'Kategory produk'
-            ],
-            [
-                'data' => 'notes',
-                'title' => 'Notes'
-            ],
-        ];
-
-        /* menambahkan kolom baru untuk harga*/
-        $idrAndQtyColumns = [
-            [
-                'data' => 'qty_total',
-                'title' => 'QTY Total Consumption Advance Receive'
-            ],
-            [
-                'data' => 'idr_total',
-                'title' => 'IDR Total Consumption Advance Receive'
-            ],
-            [
-                'data' => 'qty_expired',
-                'title' => 'QTY Expired Advance Receive'
-            ],
-            [
-                'data' => 'idr_expired',
-                'title' => 'IDR Expired Advance Receive'
-            ],
-            [
-                'data' => 'qty_refund',
-                'title' => 'QTY Refund Advance Receive'
-            ],
-            [
-                'data' => 'idr_refund',
-                'title' => 'IDR Refund Advance Receive'
-            ],
-            [
-                'data' => 'qty_sum_all',
-                'title' => 'QTY Consumption + Expired + Refund'
-            ],
-            [
-                'data' => 'idr_sum_all',
-                'title' => 'IDR Consumption + Expired + Refund',
-            ],
-            [
-                'data' => 'qty_remains',
-                'title' => 'QTY Total Sisa Advance Receive'
-            ],
-            [
-                'data' => 'idr_remains',
-                'title' => 'IDR Total Sisa Advance Receive'
-            ],
-        ];
-
-        return response()->json([
-            'columns' => array_merge(array_merge($columnsShow, $consumptionsColumns), $idrAndQtyColumns),
-        ]);
     }
 
     public function advanceReceiveDataGET(Request $request)
@@ -197,8 +47,6 @@ class AdvanceReceiveController extends Controller
             ->whereBetween('buy_date', [$buyDateStart, $buyDateEnd])
             ->get();
 
-        $recordsTotal = count($columnsRecord);
-
         $data = AdvanceReceive::orderBy('buy_date', 'asc')
             ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
             ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
@@ -210,18 +58,7 @@ class AdvanceReceiveController extends Controller
             ->get();
 
         $userDataConsumption = [];
-        foreach ($data as $advanceReceive) {
-            $tmp = [];
-            foreach ($advanceReceive->consumptions as $consumptions) {
-                foreach ($consumptions->history as $history) {
-                    $tmp[] = [
-                        'consumption-date-'.$history->used_count => $history->consumption_date,
-                        'consumption-branch-'.$history->used_count => $history->branches[0]->name,
-                        'status' => $history->status?? ''
-                    ];
-                }
-            }
-
+        foreach ($data as $key => $advanceReceive) {
             $userDataConsumption[] = [
                 'memo'=> $advanceReceive->memo,
                 'action' => $advanceReceive->id,
@@ -235,7 +72,7 @@ class AdvanceReceiveController extends Controller
                 'buy_price' => $this->formatNumberPrice($advanceReceive->buy_price),
                 'net_sales' => $this->formatNumberPrice($advanceReceive->net_sale),
                 'tax' => $this->formatNumberPrice($advanceReceive->tax),
-                'payment' => $this->formatNumberPrice($advanceReceive->payment),
+                'payment' => $advanceReceive->payment,
                 'qty' => $advanceReceive->qty,
                 'unit_price'=> $this->formatNumberPrice($advanceReceive->unit_price),
                 'product' => $advanceReceive->products[0]->name,
@@ -253,48 +90,29 @@ class AdvanceReceiveController extends Controller
                 'idr_remains' => $this->formatNumberPrice($advanceReceive->idr_remains) ?? "-",
                 'status' => $advanceReceive->status,
                 'refund_branch' => count($advanceReceive->refund_branches) > 0 ? $advanceReceive->refund_branches[0]->name : '',
-                $tmp
             ];
-        }
 
-        /*
-         * in case lebih dari 50 tambah lagi limitnya
-         * worst case 50 consumption
-         * */
-        // assign empty consumption count
-        foreach ($userDataConsumption as $key => $data){
-            for ($i = 0; $i < 50 ; $i++) {
-                if (!array_key_exists($i, $data[0])) {
-                    if (($data['status'] == "EXPIRED") &&  ($data['qty'] > $i )) {
+            for ($i = 0; $i < 12 ; $i++) {
+                $usedCount = $advanceReceive->consumptions[0]->history->count();
+                if ($i < $usedCount) {
+                    $history = $advanceReceive->consumptions[0]->history[$i];
+                    $userDataConsumption[$key]['consumption-date-'.$history->used_count] = $history->consumption_date;
+                    $userDataConsumption[$key]['consumption-branch-'.$history->used_count] = $history->branches[0]->name;
+                }else {
+                    if (($userDataConsumption[$key]['status'] == "EXPIRED") &&  ($userDataConsumption[$key]['qty'] > $i )) {
                         $consumptionDate = 'EXPIRED';
-                        $consumptionBranch = $data['branch'];
-                    }else if (($data['status'] == "REFUND") &&  ($data['qty'] > $i )) {
+                        $consumptionBranch = $userDataConsumption[$key]['branch'];
+                    }else if (($userDataConsumption[$key]['status'] == "REFUND") &&  ($userDataConsumption[$key]['qty'] > $i )) {
                         $consumptionDate = 'REFUND';
-                        $consumptionBranch = $data['refund_branch'];
+                        $consumptionBranch = $userDataConsumption[$key]['refund_branch'];
                     } else {
                         $consumptionDate = '-';
                         $consumptionBranch = '-';
                     }
-
-                    $userDataConsumption[$key][0][$i] = [
-                        'consumption-date-'.$i +1  => $consumptionDate,
-                        'consumption-branch-'.$i +1 => $consumptionBranch,
-                    ];
+                    $userDataConsumption[$key]['consumption-date-'.$i +1] = $consumptionDate;
+                    $userDataConsumption[$key]['consumption-branch-'.$i +1] = $consumptionBranch;
                 }
             }
-        }
-
-        //  membuat data agar tidak perlu banyak di proses oleh client
-        $consumptionData = [];
-        foreach ($userDataConsumption as $data) {
-            $consumptionData[] = [
-                array_merge(...$data[0]), $data
-            ];
-        }
-
-        $consumptionRow = [];
-        foreach ($consumptionData as $data) {
-            $consumptionRow[] = array_merge(...$data);
         }
 
         // generate report
@@ -310,9 +128,9 @@ class AdvanceReceiveController extends Controller
 
         return response()->json([
             'draw' => intval($request['draw'] ?? 0),
-            'recordsTotal' => intval($recordsTotal),
-            'recordsFiltered' => intval($recordsTotal),
-            'data' => $consumptionRow,
+            'recordsTotal' => intval($columnsRecord->count()),
+            'recordsFiltered' => intval($columnsRecord->count()),
+            'data' => $userDataConsumption,
             'report' => $reportData
         ]);
     }
@@ -339,7 +157,7 @@ class AdvanceReceiveController extends Controller
             'net-sales' => 'required',
             'tax' => 'required',
             'payment' => 'required',
-            'qty' => 'numeric|required|min:1',
+            'qty' => 'numeric|required|min:1|max:12',
             'unit-price' => 'required',
             'product' => 'required',
             'category' => 'required',
@@ -426,7 +244,7 @@ class AdvanceReceiveController extends Controller
             'net-sales' => 'required',
             'tax' => 'required',
             'payment' => 'required',
-            'qty' => 'numeric|required|min:1',
+            'qty' => 'numeric|required|min:1|max:12',
             'unit-price' => 'required',
             'product' => 'required',
             'category' => 'required',
@@ -570,8 +388,59 @@ class AdvanceReceiveController extends Controller
         }
     }
 
-    private function formatNumberPrice($n) {
+    public function advanceReceiveExportExcel(Request $request)
+    {
+        try {
+            $batch = Bus::batch([
+                new AdvanceReceiveExportJob($request->all())
+            ])->dispatch();
+
+            // flush all failed job if exist
+            Artisan::call("queue:flush");
+            Artisan::call("queue:work --stop-when-empty ");
+
+            return response()->json([
+                'status' => 'success',
+                'batchID' => $batch->id
+            ]);
+
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'batchID' => ''
+            ]);
+        }
+    }
+
+    public function exportCheckStatus($id)
+    {
+        $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
+        $exportBatchStatusFinished = Bus::findBatch($id)->finished();
+
+        if($exportBatchStatusFinished == 1 && $exportBatchStatusCanceled ==  1) {
+            return response()->json([
+                'status' => 'failed',
+                'exportStatus' => $exportBatchStatusFinished,
+                'exportURL' => null
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'exportStatus' => $exportBatchStatus,
+            'exportURL' => \url('advance-receive/advance-receive-export/download')
+        ]);
+    }
+
+    public function exportDownload()
+    {
+        return Storage::download('public/advance_receive_report.xlsx');
+    }
+
+    private function formatNumberPrice($n)
+    {
         $explodePrice = explode('.', $n)[0];
         return explode('.', preg_replace("/\B(?=(\d{3})+(?!\d))/", ",", $n))[0];
     }
+
 }

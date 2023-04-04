@@ -5,6 +5,13 @@
 <script src="{{ asset('public/assets/js/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('public/assets/js/datatables/dataTables.bootstrap5.min.js') }}"></script>
 <script src="{{ asset('public/assets/js/datatables/dataTables.checkboxes.min.js') }}"></script>
+<script src="{{ asset('public/assets/js/datatables/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('public/assets/js/datatables/jszip.min.js') }}"></script>
+<script src="{{ asset('public/assets/js/datatables/pdfmake.min.js') }}"></script>
+<script src="{{ asset('public/assets/js/datatables/vfs_fonts.js') }}"></script>
+<script src="{{ asset('public/assets/js/datatables/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('public/assets/js/datatables/buttons.print.min.js') }}"></script>
+
 {{-- admin --}}
 <script src="{{ asset('public/assets/js/admin/app.js') }}"></script>
 

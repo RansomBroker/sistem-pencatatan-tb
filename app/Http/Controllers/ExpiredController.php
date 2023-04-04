@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ConsumptionExportJob;
+use App\Jobs\ExpiredExportJob;
 use App\Models\AdvanceReceive;
 use App\Models\Branch;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Storage;
 
 class ExpiredController extends Controller
 {
@@ -59,8 +64,8 @@ class ExpiredController extends Controller
 
         return response()->json([
             'draw' => intval($_GET['draw']),
-            'recordsTotal' => intval(count($dataCount)),
-            'recordsFiltered' => intval(count($dataCount)),
+            'recordsTotal' => intval($dataCount->count()),
+            'recordsFiltered' => intval($dataCount->count()),
             'data' => $data,
             'report' => $report
         ]);
@@ -169,5 +174,54 @@ class ExpiredController extends Controller
            'status' => 'success',
            'message' => 'Berhasil mengexpiredkan data'
         ]);
+    }
+
+    public function expiredExportExcel(Request $request)
+    {
+        try {
+            $batch = Bus::batch([
+                new ExpiredExportJob($request->all())
+            ])->dispatch();
+
+            // flush all failed job if exist
+            Artisan::call("queue:flush");
+            Artisan::call("queue:work --stop-when-empty ");
+
+            return response()->json([
+                'status' => 'success',
+                'batchID' => $batch->id
+            ]);
+
+        }catch (\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'batchID' => ''
+            ]);
+        }
+    }
+
+    public function exportCheckStatus($id)
+    {
+        $exportBatchStatusCanceled = Bus::findBatch($id)->canceled();
+        $exportBatchStatusFinished = Bus::findBatch($id)->finished();
+
+        if($exportBatchStatusFinished == 1 && $exportBatchStatusCanceled ==  1) {
+            return response()->json([
+                'status' => 'failed',
+                'exportStatus' => $exportBatchStatusFinished,
+                'exportURL' => null
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'exportStatus' => $exportBatchStatusFinished,
+            'exportURL' => \url('refund/refund-export/download')
+        ]);
+    }
+
+    public function exportDownload()
+    {
+        return Storage::download('public/expired_report.xlsx');
     }
 }

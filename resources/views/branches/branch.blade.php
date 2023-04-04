@@ -76,18 +76,6 @@
                             <th>Action</th>
                         </tr>
                         </thead>
-                        <tfoot>
-                        <tr>
-                            <th>No</th>
-                            <th>Name</th>
-                            <th>Branch</th>
-                            <th>Address</th>
-                            <th>No.Telp</th>
-                            <th>NPWP</th>
-                            <th>Company</th>
-                            <th>Action</th>
-                        </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>

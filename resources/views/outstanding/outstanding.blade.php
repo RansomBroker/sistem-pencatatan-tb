@@ -50,6 +50,7 @@
                         <div class="col-lg-12 col-12 row mt-3">
                             <button type="submit" class="btn btn-info btn-submit col-lg-2 col-12 me-1 align-self-end"><i class='bx bx-search' ></i> Cari</button>
                             <button type="reset" class="btn btn-danger btn-reset col-lg-2 col-12 align-self-end"><i class='bx bx-reset'></i> Reset Filter</button>
+                            <button type="submit" class="btn-export btn btn-success col-lg-2 col-12 mx-1 align-self-end" data-type="excel"><i class='bx bx-spreadsheet'></i> Export As Excel File</button>
                         </div>
                     </div>
                 </form>
@@ -110,7 +111,7 @@
                         $(".report-tr").empty();
                         $(".report-tr").append(`
                                         <td>${data.report.qty_remains}</td>
-                                        <td>${formatCurrencyPrice(data.report.idr_remains)}</td>
+                                        <td>${formatCurrencyPrice(data.report.idr_remains.toString().split('.')[0])}</td>
                         `)
                         /* Menampilkan data report */
                         return data.data
@@ -221,6 +222,127 @@
             })
 
             $("#outstanding-advance-receive-table_filter").hide()
+
+            /* btn export */
+            $('.btn-export').on('click', function(e) {
+                e.preventDefault();
+                let idFilter = $("[name=id]").val();
+                let nameFilter = $("[name=name]").val();
+                let branchFilter = $("[name=branch]").val();
+                /* period buy_date*/
+                let startBuyDate = $("[name=buy-date-start]").val();
+                let endBuyDate = $("[name=buy-date-end]").val();
+
+                if (startBuyDate.length === 0 || endBuyDate.length === 0) {
+                    Swal.fire(
+                        'Error proses export',
+                        'Rentang tanggal maksimal 3 Tahun transaksi',
+                        'error'
+                    )
+                    return 0;
+                }
+
+                if (startBuyDate.length > 0 || endBuyDate.length > 0) {
+                    let dateStart = new Date(startBuyDate);
+                    let dateEnd = new Date(endBuyDate);
+                    let diff = dateEnd.getTime() - dateStart.getTime();
+                    let totalDays = Math.round(diff / (1000 * 3600 * 24));
+
+                    if (totalDays > 1095 ) {
+                        Swal.fire(
+                            'Error proses export',
+                            'Rentang tanggal maksimal 3 Tahun transaksi',
+                            'error'
+                        )
+                        return 0;
+                    }
+
+                    $.ajax({
+                        url: "{{ URL::to('outstanding/outstanding-export/excel') }}",
+                        headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'id-filter': idFilter,
+                            'name-filter': nameFilter,
+                            'branch-filter': branchFilter,
+                            'start-buy-date' : startBuyDate,
+                            'end-buy-date': endBuyDate
+                        },
+                        beforeSend: function () {
+                            Swal.fire({
+                                html: `
+                                            <div class="d-flex justify-content-center fs-4 ">
+                                                  <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                    Loading...
+                                            </div>
+                                        `,
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                allowEscapeKey: false
+                            })
+                        },
+                        success: function(data)
+                        {
+                            if (data.status === "success") {
+                                Swal.fire({
+                                    html: `
+                                            <div class="d-flex justify-content-center fs-4 ">
+                                                  <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
+                                                    Silahkan Tunggu beberapa saat, mohon untuk tidak refresh halaman ini sampai proses selesai
+                                            </div>
+                                        `,
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                })
+
+                                // check status every sec
+                                let exportExcel = setInterval(function () {
+                                    $.ajax({
+                                        async:false,
+                                        url: "{{ URL::to('outstanding/outstanding-export/check') }}" +"/" + data.batchID,
+                                        method: 'GET',
+                                        success: function (response) {
+                                            if (response.status === "success") {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Export Success',
+                                                    confirmButtonText: 'Download',
+                                                    allowOutsideClick: false
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        window.open(response.exportURL, '_blank');
+                                                    }
+                                                })
+                                                clearInterval(exportExcel)
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Export failed',
+                                                    confirmButtonText: 'cancel',
+                                                })
+                                                clearInterval(exportExcel)
+                                            }
+                                        }
+                                    })
+                                }, 1500);
+
+                                clearInterval();
+                            } else {
+                                Swal.fire(
+                                    'Error proses export',
+                                    'Terjadi Error Saat Proses Export',
+                                    'error'
+                                )
+                            }
+                        }
+                    })
+                }
+
+
+
+            })
 
             function formatNumberPrice(n) {
                 // format number 1000000 to 1,234,567

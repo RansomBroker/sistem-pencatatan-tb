@@ -100,9 +100,6 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/advance-receive/advance-receive-edit/{id}', 'advanceReceiveEditView');
         Route::post('/advance-receive/advance-receive-edit/edit', 'advanceReceiveEdit');
 
-        /* create column */
-        Route::get('/advance-receive/get-column', 'getColumn');
-
         /* search user id */
         Route::get('/customer-get/{id}', 'getCustomerByID');
 
@@ -112,16 +109,22 @@ Route::middleware(['expired.check'])->group(function () {
         /* Delete Advance Receive */
         Route::get('/advance-receive/advance-receive-delete/{id}', 'advanceReceiveDelete');
 
+        /* Export advance receive */
+        Route::post('/advance-receive/advance-receive-export/excel', 'advanceReceiveExportExcel');
+
+        /* Check  if job finished by timestamp */
+        Route::get('/advance-receive/advance-receive-export/check/{id}', 'exportCheckStatus');
+        Route::get('/advance-receive/advance-receive-export/download', 'exportDownload');
     });
 
     /* Consumption */
     Route::controller(ConsumptionController::class)->group(function () {
         Route::get('/consumption', 'consumption');
         /* will replace to post if ok*/
-        Route::get('/consumption/data-get', 'consumptionDataGET');
+        Route::post('/consumption/data-get', 'consumptionDataGET');
 
         Route::get('/consumption/consumption-add', 'consumptionAddView');
-        Route::get('/consumption/consumption-get-available', 'consumptionGetAvailableData');
+        Route::post('/consumption/consumption-get-available', 'consumptionGetAvailableData');
         Route::post('/consumption/consumption-add/add', 'consumptionAdd');
 
         Route::get('/consumption/consumption-edit/{id}', 'consumptionEditView');
@@ -129,8 +132,13 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/consumption/consumption-delete', 'consumptionDelete');
         Route::post('/consumption/consumption-get-selected-customer', 'consumptionGetSelectedCostumer');
 
-        /* create column */
-        Route::get('/consumption/get-column', 'getColumn');
+        /* Export Consumption */
+        Route::post('/consumption/consumption-export/excel', 'consumptionExportExcel');
+
+        /* Check if job finished */
+        Route::get('/consumption/consumption-export/check/{id}', 'exportCheckStatus');
+        Route::get('/consumption/consumption-export/download', 'exportDownload');
+
     });
 
     /* Expired */
@@ -141,6 +149,13 @@ Route::middleware(['expired.check'])->group(function () {
 
         Route::get('/expired/add-expired', 'expiredAddView');
         Route::get('/expired/add-expired/{id}', 'expiredAdd');
+
+        /* Export Expired */
+        Route::post('/expired/expired-export/excel', 'expiredExportExcel');
+
+        /* Check if job finished */
+        Route::get('/expired/expired-export/check/{id}', 'exportCheckStatus');
+        Route::get('/expired/expired-export/download', 'exportDownload');
     });
 
     /* Refund */
@@ -152,12 +167,27 @@ Route::middleware(['expired.check'])->group(function () {
 
         Route::get('/refund/add-refund', 'addRefundView');
         Route::post('/refund/add-refund/add', 'addRefund');
+
+        /* Export Refund */
+        Route::post('/refund/refund-export/excel', 'refundExportExcel');
+
+        /* Check if job finished */
+        Route::get('/refund/refund-export/check/{id}', 'exportCheckStatus');
+        Route::get('/refund/refund-export/download', 'exportDownload');
     });
 
     /* Outstanding */
     Route::controller(OutstandingController::class)->group(function() {
         Route::get('/outstanding', 'outstanding');
         Route::get('/outstanding/data-get', 'outstandingDataGET');
+
+        /* Export Outstanding */
+        Route::post('/outstanding/outstanding-export/excel', 'outstandingExportExcel');
+
+        /* Check if job finished */
+        Route::get('/outstanding/outstanding-export/check/{id}', 'exportCheckStatus');
+        Route::get('/outstanding/outstanding-export/download', 'exportDownload');
+
     });
 
     /* Settting */

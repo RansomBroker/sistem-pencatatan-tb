@@ -53,13 +53,6 @@
                             <th>Action</th>
                         </tr>
                         </thead>
-                        <tfoot>
-                        <tr>
-                            <th>No</th>
-                            <th>Name</th>
-                            <th>Action</th>
-                        </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>
