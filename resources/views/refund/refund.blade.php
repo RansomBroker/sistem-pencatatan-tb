@@ -122,7 +122,7 @@
                         $(".report-tr").empty();
                         $(".report-tr").append(`
                                         <td>${data.report.qty_refund}</td>
-                                        <td>${formatCurrencyPrice(data.report.idr_refund)}</td>
+                                        <td>${formatCurrencyPrice(data.report.idr_refund.toString().split('.')[0])}</td>
                         `)
                         /* Menampilkan data report */
                         return data.data

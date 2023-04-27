@@ -11,10 +11,14 @@
 </head>
 <body>
     <div class="wrapper">
-        @include('includes.sidebar')
+        @if(Route::current()->uri != 'login' )
+            @include('includes.sidebar')
+        @endif
         <div class="main">
             {{-- navbar --}}
-            @include('includes.navbar')
+            @if(Route::current()->uri != 'login' )
+                @include('includes.navbar')
+            @endif
 
             {{-- main content --}}
             <main class="content">
@@ -26,9 +30,9 @@
                 <footer class="footer">
                     <div class="container-fluid">
                         <div class="row text-muted">
-                            <div class="col-6 text-start">
+                            <div class="d-flex justify-content-end">
                                 <p class="mb-0">
-                                    <a class="text-muted" href="#" target="_blank">&copy; 2023 Tokyo Belle</a>
+                                    <a class="text-muted d-inline-flex">V.1.0 &copy; 2023 Tokyo Belle</a>
                                 </p>
                             </div>
                         </div>

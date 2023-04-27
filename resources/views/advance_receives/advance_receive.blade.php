@@ -4,6 +4,7 @@
     <div class="container-fluid p-0">
         {{-- csrf --}}
         @csrf
+        <input type="hidden" name="role" value="{{ \Illuminate\Support\Facades\Auth::user()->role }}">
 
         {{-- title --}}
         <div class="mb-3">
@@ -266,10 +267,6 @@
                         'title' : 'Tempat Pemakaian Ke-12'
                     },
                     {
-                        'data' : 'consumption-branch-12',
-                        'title' : 'Tempat Pemakaian Ke-12'
-                    },
-                    {
                         'data' : 'qty_total',
                         'title' : 'QTY Total Consumption Advance Receive'
                     },
@@ -355,7 +352,16 @@
                             targets: '_all',
                             orderable:false
                         }
-                    ]
+                    ],
+                    initComplete: function () {
+                        let table = this.api();
+                        let role = parseInt($('[name=role]').val())
+
+                        if (role === 1) {
+                            table.column(0).visible(false)
+                        }
+
+                    },
                 })
 
                 $("#advance-receive-table_filter").hide()

@@ -1,7 +1,7 @@
 <nav id="sidebar" class="sidebar js-sidebar collapsed">
     <div class="sidebar-content js-simplebar ps-2">
         <a class="sidebar-brand" href="{{ URL::to('') }}">
-            <span class="align-middle">Sistem Pencatatan</span>
+            <span class="align-middle">Advance Receive System</span>
         </a>
 
         <ul class="sidebar-nav">
@@ -68,22 +68,29 @@
                 </a>
             </li>
 
-            <li class="sidebar-item {{ Route::current()->uri == 'outstanding' ? 'active' : '' }}">
+            <li class="sidebar-item {{ Route::current()->uri == 'outstanding' ? 'active' : '' }} @if(\Illuminate\Support\Facades\Auth::user()->role == 1) mb-5 @endif">
                 <a class="sidebar-link" href="{{ URL::to('outstanding') }}">
                     <i class='bx bx-notepad'></i>Outstanding
                 </a>
             </li>
 
-            <li class="sidebar-header">
-                OTHERS
-            </li>
+            @if(\Illuminate\Support\Facades\Auth::user()->role == 0)
+                <li class="sidebar-header">
+                    OTHERS
+                </li>
 
-            <li class="sidebar-item {{ Route::current()->uri == 'setting' ? 'active' : '' }} mb-5">
-                <a class="sidebar-link" href="{{ URL::to('setting') }}">
-                    <i class='bx bxs-wrench'></i>Setting
-                </a>
-            </li>
+                <li class="sidebar-item {{ Route::current()->uri == 'setting' ? 'active' : '' }}">
+                    <a class="sidebar-link" href="{{ URL::to('setting') }}">
+                        <i class='bx bxs-wrench'></i>Setting
+                    </a>
+                </li>
 
+                <li class="sidebar-item {{ Route::current()->uri == 'user' ? 'active' : '' }} mb-5">
+                    <a class="sidebar-link" href="{{ URL::to('user') }}">
+                        <i class='bx bxs-user' ></i>Users
+                    </a>
+                </li>
+            @endif
         </ul>
     </div>
 </nav>

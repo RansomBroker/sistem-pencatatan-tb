@@ -132,9 +132,9 @@
                         $(".report-tr").empty();
                         $(".report-tr").append(`
                                         <td>${data.report.qty_expired}</td>
-                                        <td>${formatCurrencyPrice(data.report.idr_expired)}</td>
+                                        <td>${formatCurrencyPrice(data.report.idr_expired.toString().split('.')[0])}</td>
                                         <td>${data.report.qty_remains}</td>
-                                        <td>${formatCurrencyPrice(data.report.idr_remains)}</td>
+                                        <td>${formatCurrencyPrice(data.report.idr_remains.toString().split('.')[0])}</td>
                         `)
                         return data.data
                     }

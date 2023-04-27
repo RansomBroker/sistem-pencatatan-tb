@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AuthCheck;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -64,5 +65,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'expired.check' => \App\Http\Middleware\ExpiredCheck::class,
+        'auth.check' => \App\Http\Middleware\AuthCheck::class,
+        'not.admin' => \App\Http\Middleware\RedirectIfNotAdmin::class
     ];
 }

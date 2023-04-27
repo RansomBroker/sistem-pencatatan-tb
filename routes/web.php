@@ -10,6 +10,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\OutstandingController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['expired.check'])->group(function () {
+Route::middleware(['expired.check', 'auth.check'])->group(function () {
 
     Route::get('/', function () {
         return view('index');
@@ -37,10 +38,10 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/branch/branch-add', 'branchAddView');
         Route::post('/branch/branch-add/add', 'branchAdd');
 
-        Route::get('/branch/branch-edit/{id}', 'branchEditView');
-        Route::post('/branch/branch-edit/edit', 'branchEdit');
+        Route::get('/branch/branch-edit/{id}', 'branchEditView')->middleware('not.admin');
+        Route::post('/branch/branch-edit/edit', 'branchEdit')->middleware('not.admin');
 
-        Route::get('/branch/branch-delete/{id}', 'branchDelete');
+        Route::get('/branch/branch-delete/{id}', 'branchDelete')->middleware('not.admin');
 
         /* Export Branch */
         Route::post('/branch/branch-export/excel', 'branchExportExcel');
@@ -58,10 +59,10 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/customer/customer-add', 'customerAddView');
         Route::post('/customer/customer-add/add', 'customerAdd');
 
-        Route::get('/customer/customer-edit/{id}', 'customerEditView');
-        Route::post('/customer/customer-edit/edit', 'customerEdit');
+        Route::get('/customer/customer-edit/{id}', 'customerEditView')->middleware('not.admin');
+        Route::post('/customer/customer-edit/edit', 'customerEdit')->middleware('not.admin');
 
-        Route::get('/customer/customer-delete/{id}', 'customerDelete');
+        Route::get('/customer/customer-delete/{id}', 'customerDelete')->middleware('not.admin');
 
         /* Export Branch */
         Route::post('/customer/customer-export/excel', 'customerExportExcel');
@@ -79,11 +80,11 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/category/category-add', 'categoryAddView');
         Route::post('/category/category-add/add', 'categoryAdd');
 
-        Route::get('/category/category-edit/{id}', 'categoryEditView');
-        Route::post('/category/category-edit/edit', 'categoryEdit');
+        Route::get('/category/category-edit/{id}', 'categoryEditView')->middleware('not.admin');
+        Route::post('/category/category-edit/edit', 'categoryEdit')->middleware('not.admin');
 
         /* Delete Category route */
-        Route::get('/category/category-delete/{id}', 'categoryDelete');
+        Route::get('/category/category-delete/{id}', 'categoryDelete')->middleware('not.admin');
 
         /* Export Branch */
         Route::post('/category/category-export/excel', 'categoryExportExcel');
@@ -101,11 +102,11 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/product/product-add', 'productAddView');
         Route::post('/product/product-add/add', 'productAdd');
 
-        Route::get('/product/product-edit/{id}', 'productEditView');
-        Route::post('/product/product-edit/edit', 'productEdit');
+        Route::get('/product/product-edit/{id}', 'productEditView')->middleware('not.admin');
+        Route::post('/product/product-edit/edit', 'productEdit')->middleware('not.admin');
 
         /* Delete Product route */
-        Route::get('/product/product-delete/{id}', 'productDelete');
+        Route::get('/product/product-delete/{id}', 'productDelete')->middleware('not.admin');
 
         /* Export Branch */
         Route::post('/product/product-export/excel', 'productExportExcel');
@@ -125,8 +126,8 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/advance-receive/advance-receive-add', 'advanceReceiveAddView');
         Route::post('/advance-receive/advance-receive-add/add', 'advanceReceiveAdd');
 
-        Route::get('/advance-receive/advance-receive-edit/{id}', 'advanceReceiveEditView');
-        Route::post('/advance-receive/advance-receive-edit/edit', 'advanceReceiveEdit');
+        Route::get('/advance-receive/advance-receive-edit/{id}', 'advanceReceiveEditView')->middleware('not.admin');
+        Route::post('/advance-receive/advance-receive-edit/edit', 'advanceReceiveEdit')->middleware('not.admin');
 
         /* search user id */
         Route::get('/customer-get/{id}', 'getCustomerByID');
@@ -135,7 +136,7 @@ Route::middleware(['expired.check'])->group(function () {
         Route::get('/category-get/{id}', 'getCategoryByID');
 
         /* Delete Advance Receive */
-        Route::get('/advance-receive/advance-receive-delete/{id}', 'advanceReceiveDelete');
+        Route::get('/advance-receive/advance-receive-delete/{id}', 'advanceReceiveDelete')->middleware('not.admin');
 
         /* Export advance receive */
         Route::post('/advance-receive/advance-receive-export/excel', 'advanceReceiveExportExcel');
@@ -155,9 +156,9 @@ Route::middleware(['expired.check'])->group(function () {
         Route::post('/consumption/consumption-get-available', 'consumptionGetAvailableData');
         Route::post('/consumption/consumption-add/add', 'consumptionAdd');
 
-        Route::get('/consumption/consumption-edit/{id}', 'consumptionEditView');
-        Route::post('/consumption/consumption-edit/edit', 'consumptionEdit');
-        Route::post('/consumption/consumption-delete', 'consumptionDelete');
+        Route::get('/consumption/consumption-edit/{id}', 'consumptionEditView')->middleware('not.admin');
+        Route::post('/consumption/consumption-edit/edit', 'consumptionEdit')->middleware('not.admin');
+        Route::post('/consumption/consumption-delete', 'consumptionDelete')->middleware('not.admin');
         Route::post('/consumption/consumption-get-selected-customer', 'consumptionGetSelectedCostumer');
 
         /* Export Consumption */
@@ -220,8 +221,26 @@ Route::middleware(['expired.check'])->group(function () {
 
     /* Settting */
     Route::controller(SettingController::class)->group(function () {
-        Route::get('/setting', 'setting');
-        Route::post('/setting/import-excel/process', 'importExcelProcess');
+        Route::get('/setting', 'setting')->middleware('not.admin');
+        Route::post('/setting/import-excel/process', 'importExcelProcess')->middleware('not.admin');
+    });
+
+    /* User */
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/user', 'userView')->middleware('not.admin');
+        Route::get('/user/user-add', 'userAddView')->middleware('not.admin');
+        Route::get('/user/user-edit/{id}', 'userEditView')->middleware('not.admin');
+        Route::get('/user/user-delete/{id}', 'userDelete')->middleware('not.admin');
+        Route::get('logout', 'logout');
+
+        Route::post('user/user-add/add', 'userAdd')->middleware('not.admin');
+        Route::post('user/user-edit/edit', 'userEdit')->middleware('not.admin');
+
     });
 
 });
+
+// login
+Route::get('/login', [UserController::class, 'loginView']);
+Route::post('/login/process', [UserController::class, 'login']);
+

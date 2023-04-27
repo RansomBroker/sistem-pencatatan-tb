@@ -91,7 +91,7 @@ class AdvanceReceiveController extends Controller
                 'status' => $advanceReceive->status,
                 'refund_branch' => count($advanceReceive->refund_branches) > 0 ? $advanceReceive->refund_branches[0]->name : '',
             ];
-            
+
             for ($i = 0; $i < 12 ; $i++) {
                 $usedCount = $advanceReceive->consumptions[0]->history->count();
                 if ($i < $usedCount) {
@@ -178,6 +178,8 @@ class AdvanceReceiveController extends Controller
         $currDate = Carbon::now()->toDateString();
         if ($expiredDate >= $currDate) {
             $status = "AVAILABLE";
+            $advanceReceive->qty_remains = $validator['qty'];
+            $advanceReceive->idr_remains = $netSales;
         } else {
             $status = "EXPIRED";
             $advanceReceive->qty_expired = $validator['qty'];
@@ -201,6 +203,7 @@ class AdvanceReceiveController extends Controller
         $advanceReceive->status = $status;
         $advanceReceive->notes = $request['notes'] ?? '';
         $advanceReceive->memo = $request['memo'] ?? '';
+
 
         if ($advanceReceive->save()) {
             $consumption = new Consumption();

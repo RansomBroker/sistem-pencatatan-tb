@@ -214,6 +214,8 @@
         $("input[data-type=buy-date]").change(function() {
             let expiredDate = new Date($(this).val())
             expiredDate.setFullYear(expiredDate.getFullYear() + 2);
+            let lastDay = new Date(expiredDate.getFullYear(), expiredDate.getMonth()+1, 0).getDate();
+            expiredDate.setDate(lastDay)
             let expiredDateFormat = expiredDate.toISOString().split('T')[0]
             $("input[data-target=expired-date]").val(expiredDateFormat);
         });

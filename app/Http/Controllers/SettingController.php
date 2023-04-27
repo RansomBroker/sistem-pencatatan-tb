@@ -183,6 +183,7 @@ class SettingController extends Controller
             DB::rollBack();
             $request->session()->flash('status', 'danger');
             $request->session()->flash('message', 'Gagal import data excel');
+            ddd($e);
             return redirect('setting');
         }
     }

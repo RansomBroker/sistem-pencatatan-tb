@@ -4,6 +4,7 @@
     <div class="container-fluid p-0">
         {{-- csrf --}}
         @csrf
+        <input type="hidden" name="role" value="{{ \Illuminate\Support\Facades\Auth::user()->role }}">
 
         {{-- title --}}
         <div class="mb-3">
@@ -108,7 +109,16 @@
                                 <button class="btn-delete btn btn-danger" data-id="${full.id}" data-name="${full.name}"><i class='bx bxs-trash=alt'></i> Delete</button>`
                             }
                         }
-                    ]
+                    ],
+                    initComplete: function () {
+                        let table = this.api();
+                        let role = parseInt($('[name=role]').val())
+
+                        if (role === 1) {
+                            table.column(4).visible(false)
+                        }
+
+                    },
                 })
 
                 $("#product-table_filter").hide()

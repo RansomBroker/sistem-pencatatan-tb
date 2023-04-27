@@ -94,14 +94,12 @@ class ProductController extends Controller
             'product-id' => 'required|max:20',
             'category' => 'required',
             'name' => 'required|max:20',
-            'memo' => 'max:40'
         ]);
 
         $product = Product::find($request['id']);
         $product->category_id = $validator['category'];
         $product->product_id = $validator['product-id'];
         $product->name = $validator['name'];
-        $product->memo = $validator['memo'] ?? '';
 
         if ($product->save()) {
             $request->session()->flash('status', 'success');

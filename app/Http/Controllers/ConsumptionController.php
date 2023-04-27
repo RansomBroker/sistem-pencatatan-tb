@@ -399,7 +399,7 @@ class ConsumptionController extends Controller
 
                     $updateAdvanceReceive->save();
 
-                    $dataIntegrity += $key +1;
+                    $dataIntegrity++;
 
                 }
             }
@@ -414,6 +414,7 @@ class ConsumptionController extends Controller
             ]);
         }
     }
+
 
     public function consumptionEditView($id)
     {
