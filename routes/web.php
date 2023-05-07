@@ -223,6 +223,8 @@ Route::middleware(['expired.check', 'auth.check'])->group(function () {
     Route::controller(SettingController::class)->group(function () {
         Route::get('/setting', 'setting')->middleware('not.admin');
         Route::post('/setting/import-excel/process', 'importExcelProcess')->middleware('not.admin');
+
+        Route::post('/setting/truncate/process', 'truncateProcess')->middleware('not.admin');
     });
 
     /* User */

@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -186,6 +187,21 @@ class SettingController extends Controller
             ddd($e);
             return redirect('setting');
         }
+    }
+
+    public function truncateProcess(Request $request)
+    {
+        Schema::disableForeignKeyConstraints();
+        Branch::truncate();
+        Customer::truncate();
+        Category::truncate();
+        Product::truncate();
+        AdvanceReceive::truncate();
+        Schema::enableForeignKeyConstraints();
+
+        $request->session()->flash('status', 'successTruncate');
+        $request->session()->flash('message', 'Berhasil menghapus semua data');
+        return redirect('setting');
     }
 
     private function branchCreateOrExist($name)
