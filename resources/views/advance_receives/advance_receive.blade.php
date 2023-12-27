@@ -353,6 +353,21 @@
                             orderable:false
                         }
                     ],
+                    rowCallback: function (row, data) {
+                        $('td:eq(17)', row).addClass('table-primary')
+                        $('td:eq(18)', row).addClass('table-primary')
+                        $('td:eq(21)', row).addClass('table-primary')
+                        $('td:eq(22)', row).addClass('table-primary')
+                        $('td:eq(25)', row).addClass('table-primary')
+                        $('td:eq(26)', row).addClass('table-primary')
+                        $('td:eq(29)', row).addClass('table-primary')
+                        $('td:eq(30)', row).addClass('table-primary')
+                        $('td:eq(33)', row).addClass('table-primary')
+                        $('td:eq(34)', row).addClass('table-primary')
+                        $('td:eq(37)', row).addClass('table-primary')
+                        $('td:eq(38)', row).addClass('table-primary')
+
+                    },
                     initComplete: function () {
                         let table = this.api();
                         let role = parseInt($('[name=role]').val())
@@ -365,6 +380,20 @@
                 })
 
                 $("#advance-receive-table_filter").hide()
+
+                $(advanceReceiveTable.column(17).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(18).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(21).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(22).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(25).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(26).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(29).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(30).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(33).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(34).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(37).header()).addClass("table-primary")
+                $(advanceReceiveTable.column(38).header()).addClass("table-primary")
+
 
                 /* filter data */
                 $('.btn-submit').on('click', function (e) {
