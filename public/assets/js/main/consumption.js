@@ -1,5 +1,4 @@
 $(document).ready(function () {
-        /* inisialisasi data columns */
         const column = [
             {
                 'data' : 'action',
@@ -178,24 +177,8 @@ $(document).ready(function () {
                 'title' : 'QTY Expired Advance Receive'
             },
             {
-                'data' : 'idr_expired',
-                'title' : 'IDR Expired Advance Receive'
-            },
-            {
                 'data' : 'qty_refund',
                 'title' : 'QTY Refund Advance Receive'
-            },
-            {
-                'data' : 'idr_refund',
-                'title' : 'IDR Refund Advance Receive'
-            },
-            {
-                'data' : 'qty_sum_all',
-                'title' : 'QTY Consumption + Expired + Refund'
-            },
-            {
-                'data' : 'idr_sum_all',
-                'title' : 'IDR Consumption + Expired + Refund'
             },
             {
                 'data' : 'qty_remains',
@@ -207,66 +190,41 @@ $(document).ready(function () {
             },
         ]
 
-        /* Inisialiasi tabel */
-        let advanceReceiveTable = $("#advance-receive-table").DataTable({
+        let consumptionTable = $("#consumption-table").DataTable({
             bProcessing: true,
             bServerSide: true,
             ajax: {
-                url: 'advance-receive/data-get',
-                type: 'POST',
+                url: 'consumption/data-get',
                 headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
+                type: 'POST',
                 dataSrc: function (data) {
-                    /* Menampilkan data report */
+                    console.log(data)
                     $(".report-tr").empty();
                     $(".report-tr").append(`
-                                        <td>${data.report[0].sales}</td>
-                                        <td>${data.report[0].advanceReceive}</td>
-                                        <td>${data.report[0].consumption}</td>
-                                        <td>${data.report[0].expired}</td>
-                                        <td>${data.report[0].refund}</td>
-                                        <td>${data.report[0].outstanding}</td>
-                                    `)
+                                            <td>${data.report[0].qtyTotal}</td>
+                                            <td>${data.report[0].idrTotal}</td>
+                                            <td>${data.report[0].qtyRemains}</td>
+                                            <td>${data.report[0].idrRemains}</td>
+                                        `)
                     return data.data
                 }
             },
             language: {
                 processing: `<div class="spinner-border text-secondary" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                             </div>`,
+                            <span class="visually-hidden">Loading...</span>
+                            </div>`,
             },
-            columns: column,
             columnDefs: [
                 {
                     target: 0,
                     searchable: false,
                     orderable: false,
                     render: function (data, type, full, meta){
-                        return `
-                                            <a href='advance-receive/advance-receive-edit/${full.id}' class="btn btn-success"><i class='bx bxs-edit'></i> Edit</a>
-                                            <button class="btn-delete btn btn-danger" data-id="${full.id}" data-name="${full.customer_name}"><i class='bx bxs-trash=alt'></i> Delete</button>
-                                        `;
+                        return `<a href='consumption/consumption-edit/${full.id}' class="btn btn-success"><i class='bx bxs-edit'></i> Edit</a>`;
                     }
-                },
-                {
-                    targets: '_all',
-                    orderable:false
                 }
             ],
-            rowCallback: function (row, data) {
-                $('td:eq(17)', row).addClass('table-primary')
-                $('td:eq(18)', row).addClass('table-primary')
-                $('td:eq(21)', row).addClass('table-primary')
-                $('td:eq(22)', row).addClass('table-primary')
-                $('td:eq(25)', row).addClass('table-primary')
-                $('td:eq(26)', row).addClass('table-primary')
-                $('td:eq(29)', row).addClass('table-primary')
-                $('td:eq(30)', row).addClass('table-primary')
-                $('td:eq(33)', row).addClass('table-primary')
-                $('td:eq(34)', row).addClass('table-primary')
-                $('td:eq(37)', row).addClass('table-primary')
-                $('td:eq(38)', row).addClass('table-primary')
-
-            },
+            columns: column,
             initComplete: function () {
                 let table = this.api();
                 let role = parseInt($('[name=role]').val())
@@ -278,21 +236,7 @@ $(document).ready(function () {
             },
         })
 
-        $("#advance-receive-table_filter").hide()
-
-        $(advanceReceiveTable.column(17).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(18).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(21).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(22).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(25).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(26).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(29).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(30).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(33).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(34).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(37).header()).addClass("table-primary")
-        $(advanceReceiveTable.column(38).header()).addClass("table-primary")
-
+        $("#consumption-table_filter").hide()
 
         /* filter data */
         $('.btn-submit').on('click', function (e) {
@@ -301,131 +245,66 @@ $(document).ready(function () {
             let nameFilter = $("[name=name]").val();
             let branchFilter = $("[name=branch]").val();
             /* period buy_date*/
-            let startBuyDate = $("[name=buy-date-start]").val();
-            let endBuyDate = $("[name=buy-date-end]").val();
+            let startConsumptionDate = $("[name=consumption-date-start]").val();
+            let endConsumptionDate = $("[name=consumption-date-end]").val();
 
-            let buyDateFilter = "";
-            let expiredDateFilter = "";
+            let consumptionDateFilter = "";
             let startDate = "1980-01-01";
             let endDate = "2999-01-01";
 
 
-            /* search filter */
-            if (startBuyDate.length > 0 || endBuyDate.length > 0  ) {
-                if (startBuyDate.length < 1 ) {
-                    buyDateFilter = startDate + "||" + endBuyDate
-                }
-
-                if (endBuyDate.length < 1 ) {
-                    buyDateFilter = startBuyDate + "||" + endDate
-                }
-
-                if (startBuyDate.length < 1 && endBuyDate.length < 1) {
-                    buyDateFilter = startDate + "||" + endDate
-                }
-
-                if (startBuyDate.length > 0 && endBuyDate.length > 0) {
-                    buyDateFilter = startBuyDate + "||" + endBuyDate
-                }
-                advanceReceiveTable.columns(2).search(buyDateFilter).draw();
-            }
-
             if (idFilter.length > 0 ) {
-                advanceReceiveTable.columns(4).search(idFilter).draw();
+                consumptionTable.columns(4).search(idFilter).draw();
             }
 
             if (nameFilter.length > 0) {
-                advanceReceiveTable.columns(5).search(nameFilter).draw();
+                consumptionTable.columns(5).search(nameFilter).draw();
             }
 
             if (branchFilter.length > 0) {
-                advanceReceiveTable.columns(1).search(branchFilter).draw();
+                consumptionTable.columns(1).search(branchFilter).draw();
+            }
+
+            /* search filter */
+            if (startConsumptionDate.length > 0 || endConsumptionDate.length > 0  ) {
+                if (startConsumptionDate.length < 1 ) {
+                    consumptionDateFilter = startDate + "||" + endConsumptionDate
+                }
+
+                if (endConsumptionDate.length < 1 ) {
+                    consumptionDateFilter = startConsumptionDate+ "||" + endDate
+                }
+
+                if (startConsumptionDate.length < 1 && endConsumptionDate.length < 1) {
+                    consumptionDateFilter = startDate + "||" + endDate
+                }
+
+                if (startConsumptionDate.length > 0 && endConsumptionDate.length > 0) {
+                    consumptionDateFilter = startConsumptionDate + "||" + endConsumptionDate
+                }
+                consumptionTable.columns(2).search(consumptionDateFilter).draw();
             }
 
         })
 
-        /* btn-reset */
+        /* reset filter */
         $('.btn-reset').on('click', function (e) {
             e.preventDefault();
             $("#filter-form")[0].reset();
-            advanceReceiveTable.columns().search('').clear().draw();
+            consumptionTable.columns().search('').clear().draw();
         })
 
-        /* btn-delete */
-        $(document).on('click', '.btn-delete', function() {
-            let advanceReceiveID = $(this).attr("data-id");
-            let advanceReceiveName = $(this).attr("data-name");
-
-            swal.fire({
-                icon: 'question',
-                title: 'Konfirmasi Penghapusan Advance Receive',
-                text: 'Apakah anda yakin akan menghapus Advance Receive ' + advanceReceiveName,
-                showCancelButton: true,
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: 'advance-receive/advance-receive-delet' + '/' + advanceReceiveID,
-                        method: "GET",
-                        beforeSend: function () {
-                            Swal.fire({
-                                html: `
-                                                <div class="d-flex justify-content-center fs-4 ">
-                                                      <span class="spinner-border spinner-border-sm text-primary fs-4" role="status" aria-hidden="true"></span>
-                                                        Loading...
-                                                </div>
-                                            `,
-                                showConfirmButton: false,
-                                allowOutsideClick: false,
-                                allowEscapeKey: false
-                            })
-                        },
-                        success: function (response) {
-                            console.log(response)
-                            if (response.status === "success") {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil Menghapus Advance Receive',
-                                    text: response.message,
-                                    showConfirmButton: false,
-                                    allowOutsideClick: false,
-                                    allowEscapeKey: false
-                                })
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 1250)
-                            }
-
-                            if (response.status === "failed") {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal Menghapus Advance Receive',
-                                    text: response.message,
-                                    showConfirmButton: false,
-                                    allowOutsideClick: false,
-                                    allowEscapeKey: false
-                                })
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 1250)
-                            }
-                        }
-                    })
-                }
-            })
-        });
-
-        /* btn export */
+        /* export excel */
         $('.btn-export').on('click', function(e) {
             e.preventDefault();
             let idFilter = $("[name=id]").val();
             let nameFilter = $("[name=name]").val();
             let branchFilter = $("[name=branch]").val();
             /* period buy_date*/
-            let startBuyDate = $("[name=buy-date-start]").val();
-            let endBuyDate = $("[name=buy-date-end]").val();
+            let startConsumptionDate = $("[name=consumption-date-start]").val();
+            let endConsumptionDate = $("[name=consumption-date-end]").val();
 
-            if (startBuyDate.length === 0 || endBuyDate.length === 0) {
+            if (startConsumptionDate.length === 0 || endConsumptionDate.length === 0) {
                 Swal.fire(
                     'Error proses export',
                     'Rentang tanggal maksimal 3 Tahun transaksi',
@@ -434,9 +313,9 @@ $(document).ready(function () {
                 return 0;
             }
 
-            if (startBuyDate.length > 0 || endBuyDate.length > 0) {
-                let dateStart = new Date(startBuyDate);
-                let dateEnd = new Date(endBuyDate);
+            if (startConsumptionDate.length > 0 || endConsumptionDate.length > 0) {
+                let dateStart = new Date(startConsumptionDate);
+                let dateEnd = new Date(endConsumptionDate);
                 let diff = dateEnd.getTime() - dateStart.getTime();
                 let totalDays = Math.round(diff / (1000 * 3600 * 24));
 
@@ -450,7 +329,7 @@ $(document).ready(function () {
                 }
 
                 $.ajax({
-                    url: 'advance-receive/advance-receive-export/excel',
+                    url: 'consumption/consumption-export/excel',
                     headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
                     method: 'POST',
                     dataType: 'json',
@@ -458,8 +337,8 @@ $(document).ready(function () {
                         'id-filter': idFilter,
                         'name-filter': nameFilter,
                         'branch-filter': branchFilter,
-                        'start-buy-date' : startBuyDate,
-                        'end-buy-date': endBuyDate
+                        'start-consumption-date' : startConsumptionDate,
+                        'end-consumption-date': endConsumptionDate
                     },
                     beforeSend: function () {
                         Swal.fire({
@@ -493,7 +372,7 @@ $(document).ready(function () {
                             let exportExcel = setInterval(function () {
                                 $.ajax({
                                     async:false,
-                                    url: 'advance-receive/advance-receive-export/check' + '/' + data.batchID + '/' + data.name,
+                                    url: 'consumption/consumption-export/check' +'/' + data.batchID + '/' + data.name,
                                     method: 'GET',
                                     success: function (response) {
                                         if (response.status === "success") {
@@ -521,12 +400,6 @@ $(document).ready(function () {
                             }, 1500);
 
                             clearInterval();
-                        } else {
-                            Swal.fire(
-                                'Error proses export',
-                                'Terjadi Error Saat Proses Export',
-                                'error'
-                            )
                         }
                     }
                 })
