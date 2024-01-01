@@ -69,8 +69,8 @@
 
             {{-- table --}}
             <div class="card card-body shadow-lg">
-                <h3 class="d-inline align-middle"> Perhitungan Data Consumption </h3>
-                <div class="mb-3 table-responsive mt-2">
+                <h3 class="summary-text d-inline align-middle d-none"> Perhitungan Data Consumption </h3>
+                <div class="summary-table mb-3 table-responsive mt-2 d-none">
                     <table class="table table-striped table-hover text-nowrap w-100">
                         <thead>
                         <tr>

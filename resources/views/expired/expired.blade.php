@@ -75,8 +75,8 @@
 
             {{-- table --}}
             <div class="card card-body shadow-lg">
-                <h3 class="d-inline align-middle">Perhitungan Data Expired Advance Receive </h3>
-                <div class="mb-3 table-responsive mt-2">
+                <h3 class="summary-text d-none d-inline align-middle">Perhitungan Data Expired Advance Receive </h3>
+                <div class="summary-table d-none mb-3 table-responsive mt-2">
                     <table class="table table-striped table-hover text-nowrap w-100">
                         <thead>
                         <tr>
@@ -212,6 +212,8 @@
             /* filter data */
             $('.btn-submit').on('click', function (e) {
                 e.preventDefault()
+                $('.summary-table').removeClass("d-none")
+                $('.summary-text').removeClass("d-none")
                 let idFilter = $("[name=id]").val();
                 let nameFilter = $("[name=name]").val();
                 let branchFilter = $("[name=branch]").val();
@@ -264,6 +266,8 @@
 
             $('.btn-reset').on('click', function (e) {
                 e.preventDefault();
+                $('.summary-table').addClass("d-none")
+                $('.summary-text').addClass("d-none")
                 $("#filter-form")[0].reset();
                 expiredAdvanceReceiveTable.columns().search('').clear().draw();
             })

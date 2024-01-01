@@ -198,7 +198,6 @@ $(document).ready(function () {
                 headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
                 type: 'POST',
                 dataSrc: function (data) {
-                    console.log(data)
                     $(".report-tr").empty();
                     $(".report-tr").append(`
                                             <td>${data.report[0].qtyTotal}</td>
@@ -269,6 +268,8 @@ $(document).ready(function () {
         /* filter data */
         $('.btn-submit').on('click', function (e) {
             e.preventDefault()
+            $('.summary-table').removeClass("d-none")
+            $('.summary-text').removeClass("d-none")
             let idFilter = $("[name=id]").val();
             let nameFilter = $("[name=name]").val();
             let branchFilter = $("[name=branch]").val();
@@ -318,6 +319,8 @@ $(document).ready(function () {
         /* reset filter */
         $('.btn-reset').on('click', function (e) {
             e.preventDefault();
+            $('.summary-table').addClass("d-none")
+            $('.summary-text').addClass("d-none")
             $("#filter-form")[0].reset();
             consumptionTable.columns().search('').clear().draw();
         })
