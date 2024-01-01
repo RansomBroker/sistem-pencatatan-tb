@@ -101,6 +101,7 @@
                                 <th>Expired Date</th>
                                 <th>ID Customer</th>
                                 <th>Nama Customer</th>
+                                <th>No Telp</th>
                                 <th>Tipe</th>
                                 <th>QTY Produk</th>
                                 <th>Produk</th>
@@ -150,6 +151,7 @@
                     {"data" : "expired_date"},
                     {"data" : "customers[0].customer_id"},
                     {"data" : "customers[0].name"},
+                    {"data" : "customers[0].phone"},
                     {
                         sortable: false,
                         "render": function(data, type, full, meat) {
