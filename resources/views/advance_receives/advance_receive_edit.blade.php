@@ -47,20 +47,10 @@
                     </div>
                     <div class="mb-3 col-12 col-lg-12">
                         <label class="form-label">ID Customer <sup class="text-danger">(Required)</sup></label>
-                        <input type="text" data-type="customer-id" class="form-control @error('customer-id') is-invalid @enderror" name="customer-id" value="{{ $advanceReceive->customers[0]->customer_id }}" placeholder="Ketikan ID Customer"/>
+                        <select name="customer-id" id="customerID" data-type="customer-id" class="form-control @error('customer-id') is-invalid @enderror">
+                            <option value="{{ $advanceReceive->customers[0]->id  }}" selected>{{ $advanceReceive->customers[0]->name }} ({{ $advanceReceive->customers[0]->customer_id }})</option>
+                        </select>
                         @error('customer-id')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                        @enderror
-                    </div>
-                    <div class="mb-3 col-12 col-lg-12 d-flex flex-column">
-                        <label class="form-label">Nama Customer</label>
-                        <input type="text" data-type="customer-name" class="form-control @error('customer-name') is-invalid @enderror" name="customer-name" value="{{ $advanceReceive->customers[0]->name }}" readonly/>
-                        <div class="spinner-border text-primary d-none" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        @error('customer-name')
                         <div class="invalid-feedback">
                             {{ $message }}
                         </div>
@@ -215,31 +205,26 @@
             $("input[data-target=expired-date]").val(expiredDateFormat);
         });
 
-        $("input[data-type=customer-id]").on('keyup', function () {
-            $("input[data-type=customer-name]").addClass('d-none')
-            $('.spinner-border').removeClass('d-none')
-            fetch('{{URL::to('customer-get')}}'+ '/' + $(this).val(), {
-                method: "GET"
-            })
-                .then(response => response.json())
-                .then(result => {
-                    console.log(result)
-                    if (result.data === null) {
-                        $("input[data-type=customer-name]").removeClass('d-none')
-                        $('.spinner-border').addClass('d-none')
-                        $("input[data-type=customer-name]").attr('placeholder', 'data tidak ditemukan (pastikan customer telah terdapat pada master data)')
-                        $("input[data-type=customer-name]").attr('value', '')
+        $("select[data-type=customer-id]").select2({
+            ajax: {
+                url: function(data) {
+                    return '/customer-get/' + data.term;
+                },
+                dataType: 'json',
+                delay: 250,
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name + " (" + item.customer_id  + ")",
+                                id: item.id
+                            };
+                        })
                     }
-                    $("input[data-type=customer-name]").removeClass('d-none')
-                    $('.spinner-border').addClass('d-none')
-                    $("input[data-type=customer-name]").attr('value', result.data.name)
-                })
-        })
-
-        $("input[data-type=customer-id]").focusout(function () {
-            $("input[data-type=customer-name]").removeClass('d-none')
-            $('.spinner-border').addClass('d-none')
-        })
+                },
+                cache: true
+            }
+        });
 
         $("select[data-type=product-select]").change(function () {
             let data = $(this).val();

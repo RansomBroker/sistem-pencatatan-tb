@@ -20,3 +20,6 @@
 
 {{-- swal --}}
 <script src="{{ asset('public/assets/js/sweetalert/sweetalert2.all.min.js') }}"></script>
+
+{{-- select2 --}}
+<script src="{{ asset('public/assets/js/select2/select2.min.js') }}"></script>

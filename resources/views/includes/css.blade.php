@@ -17,3 +17,6 @@
 
 {{-- sweet alert --}}
 <link rel="stylesheet" href="{{ asset('public/assets/css/sweetalert/sweetalert2.min.css') }}">
+
+{{-- select2 --}}
+<link rel="stylesheet" href="{{ asset('public/assets/css/select2/select2.min.css') }}">

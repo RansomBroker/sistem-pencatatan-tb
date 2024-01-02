@@ -360,10 +360,8 @@ class AdvanceReceiveController extends Controller
 
     public function getCustomerByID($id)
     {
-        $customer = Customer::where('customer_id', 'ILIKE' ,'%'.$id.'%')->first();
-        return response()->json([
-            'data' => $customer
-        ]);
+        $customer = Customer::where('customer_id', 'ILIKE' ,'%'.$id.'%')->get();
+        return response()->json($customer);
     }
 
     public function getCategoryByID($id)
