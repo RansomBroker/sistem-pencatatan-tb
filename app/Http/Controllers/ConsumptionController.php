@@ -167,15 +167,18 @@ class ConsumptionController extends Controller
         $idrBranchFilterConsumption = 0;
         foreach ($getBranchFilter as $branch) {
             $totalBranchFilterConsumption += count($branch->consumptions[0]->history);
-            $idrBranchFilterConsumption += count($branch->consumptions[0]->history) * $branch->unit_price;
+            $idrBranchFilterConsumption += count($branch->consumptions[0]->history) * floor($branch->unit_price);
         }
 
         // generate report
-        $report = collect($columnsRecord);
+        $report = collect($columnsRecord)->map(function($item) {
+            $item['idr_remains'] = floor($item['idr_remains']);
+            return $item;
+        });
         $reportData[] = [
-            'qtyTotal' => $this->formatNumberPrice($totalBranchFilterConsumption),
+            'qtyTotal' => $totalBranchFilterConsumption,
             'idrTotal' => $this->formatNumberPrice($idrBranchFilterConsumption),
-            'qtyRemains' => $this->formatNumberPrice($report->sum('qty_remains')),
+            'qtyRemains' => $report->sum('qty_remains'),
             'idrRemains' => $this->formatNumberPrice($report->sum('idr_remains')),
         ];
 
