@@ -171,10 +171,7 @@ class ConsumptionController extends Controller
         }
 
         // generate report
-        $report = collect($columnsRecord)->map(function($item) {
-            $item['idr_remains'] = floor($item['idr_remains']);
-            return $item;
-        });
+        $report = collect($columnsRecord);
         $reportData[] = [
             'qtyTotal' => $totalBranchFilterConsumption,
             'idrTotal' => $this->formatNumberPrice($idrBranchFilterConsumption),

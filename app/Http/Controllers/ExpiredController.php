@@ -56,11 +56,7 @@ class ExpiredController extends Controller
             ->get();
 
 
-        $reportCollection = collect($dataCount)->map(function ($item) {
-            $item['idr_expired'] = floor($item['idr_expired']);
-            $item['idr_remains'] = floor($item['idr_remains']);
-            return $item;
-        });
+        $reportCollection = collect($dataCount);
 
         $report = [
             'qty_expired' => $reportCollection->sum('qty_expired'),

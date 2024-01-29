@@ -116,16 +116,7 @@ class AdvanceReceiveController extends Controller
         }
 
         // generate report
-        $report = collect($columnsRecord)->map(function ($item) {
-            // menghilangkan desimal
-            $item['buy_pice'] = floor($item['buy_pice']);
-            $item['net_sale'] = floor($item['net_sale']);
-            $item['idr_total'] = floor($item['idr_total']);
-            $item['idr_expired'] = floor($item['idr_expired']);
-            $item['idr_refund'] = floor($item['idr_refund']);
-            $item['idr_remains'] = floor($item['idr_remains']);
-            return $item;
-        });
+        $report = collect($columnsRecord);
 
         $reportData[] = [
             'sales' => $this->formatNumberPrice($report->sum('buy_price')),
