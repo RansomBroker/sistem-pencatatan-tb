@@ -55,11 +55,18 @@ class ExpiredController extends Controller
             ->limit($_GET['length'])
             ->get();
 
+
+        $reportCollection = collect($dataCount)->map(function ($item) {
+            $item['idr_expired'] = floor($item['idr_expired']);
+            $item['idr_remains'] = floor($item['idr_remains']);
+            return $item;
+        });
+
         $report = [
-            'qty_expired' => $data->sum('qty_expired'),
-            'idr_expired' => $data->sum('idr_expired'),
-            'qty_remains' => $data->sum('qty_remains'),
-            'idr_remains' => $data->sum('idr_remains')
+            'qty_expired' => $reportCollection->sum('qty_expired'),
+            'idr_expired' => $reportCollection->sum('idr_expired'),
+            'qty_remains' => $reportCollection->sum('qty_remains'),
+            'idr_remains' => $reportCollection->sum('idr_remains')
         ];
 
         return response()->json([
@@ -103,19 +110,11 @@ class ExpiredController extends Controller
             ->limit($_GET['length'])
             ->get();
 
-        $report = [
-            'qty_expired' => $dataCount->sum('qty_expired'),
-            'idr_expired' => $dataCount->sum('idr_expired'),
-            'qty_remains' => $dataCount->sum('qty_remains'),
-            'idr_remains' => $dataCount->sum('idr_remains')
-        ];
-
         return response()->json([
             'draw' => intval($_GET['draw']),
             'recordsTotal' => intval(count($dataCount)),
             'recordsFiltered' => intval(count($dataCount)),
             'data' => $data,
-            'report' => $report
         ]);
     }
 
