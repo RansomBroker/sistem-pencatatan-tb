@@ -206,7 +206,7 @@ class SettingController extends Controller
 
     private function branchCreateOrExist($name)
     {
-        $branch = Branch::where("name", 'ILIKE', '%'.$name.'%')->first();
+        $branch = Branch::where("name", $name)->first();
 
         if (is_null($branch)) {
             $branch = new Branch();
@@ -220,7 +220,7 @@ class SettingController extends Controller
 
     private function customerCreateOrExist($id, $name)
     {
-        $customer = Customer::where("customer_id", 'ILIKE', '%'.$id.'%')->first();
+        $customer = Customer::where("customer_id", $id)->first();
 
         if (is_null($customer)) {
             $customer = new Customer();
@@ -235,7 +235,7 @@ class SettingController extends Controller
 
     private function categoryCreateOrExist($name)
     {
-        $category = Category::where('name', 'ILIKE', '%'.$name.'%')->first();
+        $category = Category::where('name', $name)->first();
 
         if (is_null($category)) {
             $category = new Category();
@@ -249,7 +249,7 @@ class SettingController extends Controller
 
     private function productCreateOrExist($categoryId, $name)
     {
-        $product = Product::where('name', 'ILIKE', '%'.$name.'%')
+        $product = Product::where('name', $name)
             ->where('category_id', $categoryId)
             ->first();
 

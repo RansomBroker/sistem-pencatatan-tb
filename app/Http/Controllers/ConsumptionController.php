@@ -435,7 +435,7 @@ class ConsumptionController extends Controller
             $consumption->consumption_date = $request['consumption-date'][$i];
             $consumption->branch_id= $request['consumption-branch'][$i];
             $consumption->save();
-            $pos+= $i;
+            $pos++;
         }
 
         if ($pos == $totalData) {
@@ -445,6 +445,7 @@ class ConsumptionController extends Controller
             $request->session()->flash('status', 'danger');
             $request->session()->flash('message', 'Gagal mengedit data');
         }
+
         return redirect('consumption');
     }
 
