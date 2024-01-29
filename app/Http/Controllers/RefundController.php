@@ -113,11 +113,17 @@ class RefundController extends Controller
             ->limit($_GET['length'])
             ->get();
 
+        $reportCollection = collect($dataCount)->map(function ($item) {
+            $item['idr_refund'] = $item['idr_refund'];
+            $item['idr_remains'] = $item['idr_remains'];
+            return $item;
+        });
+
         $report = [
-            'qty_refund' => $dataCount->sum('qty_refund'),
-            'idr_refund' => $dataCount->sum('idr_refund'),
-            'qty_remains' => $dataCount->sum('qty_remains'),
-            'idr_remains' => $dataCount->sum('idr_remains')
+            'qty_refund' => $reportCollection->sum('qty_refund'),
+            'idr_refund' => $reportCollection->sum('idr_refund'),
+            'qty_remains' => $reportCollection->sum('qty_remains'),
+            'idr_remains' => $reportCollection->sum('idr_remains')
         ];
 
         return response()->json([
