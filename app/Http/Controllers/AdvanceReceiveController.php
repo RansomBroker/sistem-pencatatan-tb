@@ -117,7 +117,6 @@ class AdvanceReceiveController extends Controller
 
         // generate report
         $report = collect($columnsRecord);
-
         $reportData[] = [
             'sales' => $this->formatNumberPrice($report->sum('buy_price')),
             'advanceReceive' => $this->formatNumberPrice($report->sum('net_sale')),

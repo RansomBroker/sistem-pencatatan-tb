@@ -6,10 +6,12 @@ use App\Models\AdvanceReceive;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
 
-class AdvanceReceiveExport implements FromQuery, WithHeadings, WithMapping
+class AdvanceReceiveExport implements FromQuery, WithHeadings, WithMapping, WithCustomValueBinder
 {
     use Exportable;
     public $filter;
@@ -100,12 +102,12 @@ class AdvanceReceiveExport implements FromQuery, WithHeadings, WithMapping
             $advanceReceive->customers[0]->customer_id,
             $advanceReceive->customers[0]->name,
             ucfirst(strtolower($advanceReceive->type)),
-            $this->formatNumberPrice($advanceReceive->buy_price),
-            $this->formatNumberPrice($advanceReceive->net_sale),
-            $this->formatNumberPrice($advanceReceive->tax),
+            $advanceReceive->buy_price,
+            $advanceReceive->net_sale,
+            $advanceReceive->tax,
             $advanceReceive->payment,
             $advanceReceive->qty,
-            $this->formatNumberPrice($advanceReceive->unit_price),
+            $advanceReceive->unit_price,
             $advanceReceive->products[0]->name,
             $advanceReceive->memo,
             $advanceReceive->products[0]->categories[0]->name,
@@ -114,15 +116,15 @@ class AdvanceReceiveExport implements FromQuery, WithHeadings, WithMapping
 
         $advanceReceiveReport = [
             $advanceReceive->qty_total ?? '-',
-            $advanceReceive->idr_total != null ? $this->formatNumberPrice($advanceReceive->idr_total): '-',
+            $advanceReceive->idr_total != null ? $advanceReceive->idr_total: '-',
             $advanceReceive->qty_expired ?? "-",
-            $advanceReceive->idr_expired != null ? $this->formatNumberPrice($advanceReceive->idr_expired) : "-",
+            $advanceReceive->idr_expired != null ? $advanceReceive->idr_expired : "-",
             $advanceReceive->qty_refund ?? "-",
-            $advanceReceive->idr_refund ? $this->formatNumberPrice($advanceReceive->idr_refund) : "-",
+            $advanceReceive->idr_refund ? $advanceReceive->idr_refund : "-",
             $advanceReceive->qty_sum_all ?? "-",
-            $advanceReceive->idr_sum_all ? $this->formatNumberPrice($advanceReceive->idr_sum_all) : "-",
+            $advanceReceive->idr_sum_all ?$advanceReceive->idr_sum_all : "-",
             $advanceReceive->qty_remains ?? "-",
-            $advanceReceive->idr_remains ? $this->formatNumberPrice($advanceReceive->idr_remains) : "-"
+            $advanceReceive->idr_remains ? $advanceReceive->idr_remains : "-"
         ];
 
         for ($i = 0; $i < 12 ; $i++) {
@@ -152,9 +154,10 @@ class AdvanceReceiveExport implements FromQuery, WithHeadings, WithMapping
         return $data;
     }
 
-    private function formatNumberPrice($n)
+
+    public function bindValue(Cell $cell, $value): bool
     {
-        $explodePrice = explode('.', $n)[0];
-        return explode('.', preg_replace("/\B(?=(\d{3})+(?!\d))/", ",", $n))[0];
+        return (new CustomNumberFormatBinder())->bindValue($cell, $value);
     }
 }
+
