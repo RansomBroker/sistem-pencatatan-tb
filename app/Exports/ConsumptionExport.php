@@ -9,10 +9,12 @@ use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
 
-class ConsumptionExport implements FromQuery, WithHeadings, WithMapping
+class ConsumptionExport implements FromQuery, WithHeadings, WithMapping, WithCustomValueBinder
 {
     use Exportable;
     public $filter;
@@ -111,9 +113,9 @@ class ConsumptionExport implements FromQuery, WithHeadings, WithMapping
             $advanceReceive->customers[0]->customer_id,
             $advanceReceive->customers[0]->name,
             ucfirst(strtolower($advanceReceive->type)),
-            $this->formatNumberPrice($advanceReceive->buy_price),
-            $this->formatNumberPrice($advanceReceive->net_sale),
-            $this->formatNumberPrice($advanceReceive->tax),
+            $advanceReceive->buy_price,
+            $advanceReceive->net_sale,
+            $advanceReceive->tax,
             $advanceReceive->payment,
             $advanceReceive->qty,
             $advanceReceive->products[0]->name,
@@ -124,11 +126,11 @@ class ConsumptionExport implements FromQuery, WithHeadings, WithMapping
 
         $advanceReceiveReport = [
             $advanceReceive->qty_total ?? '-',
-            $advanceReceive->idr_total != null ? $this->formatNumberPrice($advanceReceive->idr_total): '-',
+            $advanceReceive->idr_total != null ? $advanceReceive->idr_total: '-',
             $advanceReceive->qty_expired ?? "-",
             $advanceReceive->qty_refund ?? "-",
             $advanceReceive->qty_remains ?? "-",
-            $advanceReceive->idr_remains ? $this->formatNumberPrice($advanceReceive->idr_remains) : "-"
+            $advanceReceive->idr_remains ? $advanceReceive->idr_remains : "-"
         ];
 
         for ($i = 0; $i < 12 ; $i++) {
@@ -158,9 +160,9 @@ class ConsumptionExport implements FromQuery, WithHeadings, WithMapping
         return $data;
     }
 
-    private function formatNumberPrice($n)
+    public function bindValue(Cell $cell, $value): bool
     {
-        $explodePrice = explode('.', $n)[0];
-        return explode('.', preg_replace("/\B(?=(\d{3})+(?!\d))/", ",", $n))[0];
+        return (new CustomNumberFormatBinder())->bindValue($cell, $value);
     }
+
 }

@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
 
-class ExpiredExport implements FromQuery, WithHeadings, WithMapping
+class ExpiredExport implements FromQuery, WithHeadings, WithMapping, WithCustomValueBinder
 {
     use Exportable;
     public $filter;
@@ -77,15 +79,14 @@ class ExpiredExport implements FromQuery, WithHeadings, WithMapping
             $advanceReceive->products[0]->categories[0]->name,
             $advanceReceive->notes == "" ? '-' : $advanceReceive->notes,
             $advanceReceive->qty_expired ?? "-",
-            $advanceReceive->idr_expired ? $this->formatNumberPrice($advanceReceive->idr_expired) : "-",
+            $advanceReceive->idr_expired ? $advanceReceive->idr_expired : "-",
             $advanceReceive->qty_remains ?? "-",
-            $advanceReceive->idr_remains ? $this->formatNumberPrice($advanceReceive->idr_remains) : "-"
+            $advanceReceive->idr_remains ? $advanceReceive->idr_remains : "-"
         ];
     }
 
-    private function formatNumberPrice($n)
+    public function bindValue(Cell $cell, $value): bool
     {
-        $explodePrice = explode('.', $n)[0];
-        return explode('.', preg_replace("/\B(?=(\d{3})+(?!\d))/", ",", $n))[0];
+        return (new CustomNumberFormatBinder())->bindValue($cell, $value);
     }
 }
