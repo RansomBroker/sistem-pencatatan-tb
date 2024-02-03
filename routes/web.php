@@ -11,6 +11,7 @@ use App\Http\Controllers\RefundController;
 use App\Http\Controllers\OutstandingController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\InstallerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +24,15 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+// install procedure
+Route::controller(InstallerController::class)->name('install.')->group(function () {
+
+    // check env file has copied or no
+    Route::get('/install', 'stepOne')->name('step.one');
+    Route::post('/install/step-one/process', 'stepOneProcess')->name('step.one.process');
+
+});
 
 Route::middleware(['expired.check', 'auth.check'])->group(function () {
 
