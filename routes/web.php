@@ -35,6 +35,8 @@ Route::controller(InstallerController::class)->name('install.')->group(function 
     // check database connection
     Route::get('/install/step-two', 'stepTwo')->name('step.two');
     Route::post('/install/step-two/process', 'stepTwoProcess')->name('step.two.process');
+    Route::get('/install/step-two/confirmation', 'stepTwoConfirmation')->name('step.two.confirmation');
+    Route::post('/install/step-two/install', 'stepTwoInstall')->name('step.two.install');
 
     // create a new database
     Route::get('/install/step-three', 'stepThree')->name('step.three');
