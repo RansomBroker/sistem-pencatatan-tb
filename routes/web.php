@@ -29,8 +29,12 @@ use Illuminate\Support\Facades\Route;
 Route::controller(InstallerController::class)->name('install.')->group(function () {
 
     // check env file has copied or no
-    Route::get('/install', 'stepOne')->name('step.one');
+    Route::get('/install/step-one', 'stepOne')->name('step.one');
     Route::post('/install/step-one/process', 'stepOneProcess')->name('step.one.process');
+
+    // check database conncetion
+    Route::get('/install/step-two', 'stepTwo')->name('step.two');
+    Route::post('/install/step-two/process', 'stepTwoProcess')->name('step.two.process');
 
 });
 
