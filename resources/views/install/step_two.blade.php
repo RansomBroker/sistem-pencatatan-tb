@@ -21,7 +21,7 @@
                                 </div>
                                 <p>Selamat datang di Web Application Installer V.1.0. Halaman ini merupakan tahap pertama dalam instalasi Aplikasi Web anda. <span class="fw-bold">Mohon untuk mengikuti instruksi secara seksama</span>.</p>
                                 <div class="border mb-3"></div>
-                                <h4>Langkah 2 (Connection Database Server)</h4>
+                                <h4>Langkah 2 (Connecting Database Server)</h4>
                                 @if(Session::has('error'))
                                     <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
                                         <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
