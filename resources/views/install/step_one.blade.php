@@ -22,7 +22,7 @@
                                 <p>Selamat datang di Web Application Installer V.1.0. Halaman ini merupakan tahap pertama dalam instalasi Aplikasi Web anda. <span class="fw-bold">Mohon untuk mengikuti instruksi secara seksama</span>.</p>
                                 <div class="border mb-3"></div>
                                 <h4>Langkah 1</h4>
-                                @error('done')
+                                @error('check')
                                 <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
                                     <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                     <div>
@@ -43,7 +43,7 @@
                                 <form action="{{ route('install.step.one.process') }}" method="POST">
                                     @csrf
                                     <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" name="done">
+                                        <input class="form-check-input" type="checkbox" value="1" id="flexCheckDefault" name="check">
                                         <label class="form-check-label" for="flexCheckDefault">
                                             Saya telah mengikuti step 1.
                                         </label>

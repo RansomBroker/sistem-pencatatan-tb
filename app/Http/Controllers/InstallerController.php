@@ -14,17 +14,15 @@ class InstallerController extends Controller
     public function stepOneProcess(Request $request)
     {
         $validator = $request->validate([
-            'done' => 'required'
+            'check' => 'required|in:1'
         ], [
-            'done.required' => 'Anda harus klik check pada checkbox di bawah untuk melanjutkan installasi'
+            'check.required' => 'Anda harus klik check pada checkbox di bawah untuk melanjutkan installasi'
         ]);
 
         if (!file_exists(base_path('.env'))) {
             $request->session()->flash('error', 'file .env tidak terdeteksi silahkan ikuti step 1');
             return redirect()->back();
         }
-
-        return redirect()->route();
-
+        dd('yeay');
     }
 }
