@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
@@ -55,4 +56,43 @@ class InstallerController extends Controller
             return redirect()->back();
         }
     }
+
+    public function stepThree()
+    {
+        return view('install.step_three');
+    }
+
+    public function stepThreeProcess(Request $request)
+    {
+        $validation = $request->validate([
+            'db_name' => 'required|regex:/^\S*$/|max:255',
+            'db_username' => 'required|regex:/^\S*$/|max:255',
+            'db_password' => 'required|regex:/^\S*$/|max:255'
+        ]);
+
+        $dbName = $validation['db_name'];
+        $dbUsername = $validation['db_username'];
+        $dbPassword = $validation['db_password'];
+
+        try {
+            // create database
+            DB::connection()->getPdo()->exec("CREATE DATABASE $dbName");
+
+            // write to env file
+            $envFile = app()->environmentFilePath();
+            $envFileContents = File::get($envFile);
+            $envFileContents = str_replace('DB_DATABASE=' . env('DB_DATABASE'), 'DB_DATABASE='.$dbName, $envFileContents);
+            $envFileContents = str_replace('DB_USERNAME=' . env('DB_USERNAME'), 'DB_USERNAME='.$dbUsername, $envFileContents);
+            $envFileContents = str_replace('DB_PASSWORD=' . env('DB_PASSWORD'), 'DB_PASSWORD='.$dbPassword, $envFileContents);
+            File::put($envFile, $envFileContents);
+
+            $request->session()->flash('success', 'Berhasil membuat database baru');
+            return redirect()->route('install.step.three');
+        } catch (\Exception $e) {
+            $request->session()->flash('error', 'Gagal membuat database ' . $e->getMessage());
+            return redirect()->back();
+        }
+
+    }
+
 }
