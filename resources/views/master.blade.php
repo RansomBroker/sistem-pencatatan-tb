@@ -24,12 +24,12 @@
     </svg>
 
     <div class="wrapper">
-        @if(Route::current()->uri != 'login' && Route::current()->uri != 'install' )
+        @if(Request::is('login/**') && Request::is('install/**') )
             @include('includes.sidebar')
         @endif
         <div class="main">
             {{-- navbar --}}
-            @if(Route::current()->uri != 'login' && Route::current()->uri != 'install' )
+            @if(Request::is('login/**') && Request::is('install/**') )
                 @include('includes.navbar')
             @endif
 
