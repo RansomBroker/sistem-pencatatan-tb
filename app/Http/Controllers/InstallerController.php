@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\Migrations\DatabaseMigrationRepository;
-use Illuminate\Database\Migrations\Migrator;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -104,11 +103,39 @@ class InstallerController extends Controller
         try {
             Artisan::call('migrate');
             $request->session()->flash('success', Artisan::output());
-            return redirect()->route('install.step.for');
+            return redirect()->route('install.step.four');
         }catch (\Exception $e) {
-            $request->session()->flash('success', 'Database sudah ada.');
-            return redirect()->route('install.step.for');
+            $request->session()->flash('error', $e->getMessage());
+            return redirect()->back();
         }
+    }
+
+    public function stepFour()
+    {
+        return view('install.step_four');
+    }
+
+    public function stepFourProcess(Request $request, User $user)
+    {
+        $validator = $request->validate([
+            'name' => 'required',
+            'password' => 'required',
+            'role' => 'required'
+        ]);
+
+        $data = $validator;
+        $data['password'] = bcrypt($data['password']);
+
+        try {
+            $user->create($data);
+
+            $request->session()->flash('success', 'suskses membuat akun admin');
+            return redirect()->route('install.step.five');
+        } catch (\Exception $e) {
+            $request->session()->flash('error', $e->getMessage());
+            return redirect()->back();
+        }
+
     }
 
 }

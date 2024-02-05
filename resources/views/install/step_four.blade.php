@@ -24,19 +24,11 @@
 
                                 <div class="border mb-3"></div>
 
-                                <h4>Langkah 3 (Run Migration File)</h4>
+                                <h4>Langkah 4 (Create Admin Account)</h4>
 
                                 <div class="mb-3">
-                                    <span>Note : Anda cukup klik tombol next untuk menjalankan file migrasi  </span>
+                                    <span>Note : Akun admin berfungsi untuk login pada aplikasi  </span>
                                 </div>
-
-                                <p>List file Migartion</p>
-
-                                <ul>
-                                    @foreach($migrationFiles as $file)
-                                        <li>{{ basename($file) }}</li>
-                                    @endforeach
-                                </ul>
 
                                 @if(Session::has('success'))
                                     <div class="alert alert-success d-flex align-items-center" role="alert">
@@ -56,8 +48,17 @@
                                     </div>
                                 @endif
 
-                                <form action="{{ route('install.step.three.process') }}" method="POST">
+                                <form action="{{ route('install.step.four.process') }}" method="POST">
                                     @csrf
+                                    <input type="hidden" value="0" name="role">
+                                    <div class="form-group mb-3">
+                                        <label for="name" class="form-label">Username <sup class="text-danger">*</sup></label>
+                                        <input type="text" class="form-control @error('username') is-invalid @enderror" name="name" id="name" required>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="password" class="form-label">Password <sup class="text-danger">*</sup></label>
+                                        <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" id="password" required>
+                                    </div>
                                     <button class="btn btn-primary w-100 mb-3">Next</button>
                                 </form>
                             </div>

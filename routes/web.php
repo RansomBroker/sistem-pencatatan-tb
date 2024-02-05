@@ -28,20 +28,27 @@ use Illuminate\Support\Facades\Route;
 // install procedure
 Route::controller(InstallerController::class)->name('install.')->group(function () {
 
+    // step 1
     // check env file has copied or no
     Route::get('/install/step-one', 'stepOne')->name('step.one');
     Route::post('/install/step-one/process', 'stepOneProcess')->name('step.one.process');
 
+    // step 2
     // check database connection
     Route::get('/install/step-two', 'stepTwo')->name('step.two');
     Route::post('/install/step-two/process', 'stepTwoProcess')->name('step.two.process');
     Route::get('/install/step-two/confirmation', 'stepTwoConfirmation')->name('step.two.confirmation');
     Route::post('/install/step-two/install', 'stepTwoInstall')->name('step.two.install');
 
+    // step 3
     // create a new database
     Route::get('/install/step-three', 'stepThree')->name('step.three');
     Route::post('/install/step-three/process', 'stepThreeProcess')->name('step.three.process');
 
+    //step 4
+    // create admin username and password
+    Route::get('/install/step-for', 'stepFour')->name('step.four');
+    Route::post('/install/step-for/process', 'stepFourProcess')->name('step.four.process');
 });
 
 Route::middleware(['expired.check', 'auth.check'])->group(function () {
