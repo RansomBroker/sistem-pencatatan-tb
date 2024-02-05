@@ -49,6 +49,10 @@ Route::controller(InstallerController::class)->name('install.')->group(function 
     // create admin username and password
     Route::get('/install/step-for', 'stepFour')->name('step.four');
     Route::post('/install/step-for/process', 'stepFourProcess')->name('step.four.process');
+
+    //step 5
+    //overview
+    Route::get('/install/step-five', 'stepFive')->name('step.five');
 });
 
 Route::middleware(['expired.check', 'auth.check'])->group(function () {
@@ -270,6 +274,6 @@ Route::middleware(['expired.check', 'auth.check'])->group(function () {
 });
 
 // login
-Route::get('/login', [UserController::class, 'loginView']);
+Route::get('/login', [UserController::class, 'loginView'])->name('login');
 Route::post('/login/process', [UserController::class, 'login']);
 

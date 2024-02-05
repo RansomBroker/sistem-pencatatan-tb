@@ -138,4 +138,11 @@ class InstallerController extends Controller
 
     }
 
+    public function stepFive(User $user)
+    {
+        $admin = $user->first();
+
+        return view('install.step_five', compact('admin'));
+    }
+
 }
