@@ -24,17 +24,19 @@
 
                                 <div class="border mb-3"></div>
 
-                                <h4>Langkah 3 (Configure new database)</h4>
+                                <h4>Langkah 3 (Run Migration File)</h4>
 
                                 <div class="mb-3">
-                                    <span>Note 1: untuk nama database harus tanpa spasi jika dipisah maka bisa gunakan simbol '-' atau '_' </span>
-                                    <span>contoh penamaan database <code>db_advance_receive</code></span>
-                                    <span>contoh penamaan username <code>user_1</code> atau <code>user_db_advance_receive</code>.</span>
+                                    <span>Note : Anda cukup klik tombol next untuk menjalankan file migrasi  </span>
                                 </div>
 
-                                <div class="mb-3">
-                                    <span>Note 2: untuk input <span class="fw-bold">Database Admin Username</span> dan <span class="fw-bold">Database Admin Password</span> merupakan akun pada saat instalasi Database Server</span>
-                                </div>
+                                <p>List file Migartion</p>
+
+                                <ul>
+                                    @foreach($migrationFiles as $file)
+                                        <li>{{ basename($file) }}</li>
+                                    @endforeach
+                                </ul>
 
                                 @if(Session::has('success'))
                                     <div class="alert alert-success d-flex align-items-center" role="alert">
@@ -47,37 +49,7 @@
 
                                 <form action="{{ route('install.step.three.process') }}" method="POST">
                                     @csrf
-                                    {{-- db name--}}
-                                    <div class="form-group mb-3">
-                                        <label for="DBName" class="form-label">New Database Name<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control  @error('db_name') is-invalid @enderror" id="DBName" name="db_name" placeholder="ex: db_advance_receive" required>
-                                        @error('db_name')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <label for="DBUsername" class="form-label">Database Admin Username<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control  @error('db_username') is-invalid @enderror" id="DBUsername" name="db_username" placeholder="ex: root" required>
-                                        @error('db_username')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <label for="DBPassword" class="form-label">Database Admin Password<span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control  @error('db_password') is-invalid @enderror" id="DBPassword" name="db_password" placeholder="ex: root" required>
-                                        @error('db_password')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                        @enderror
-                                    </div>
-                                    <button class="btn btn-primary w-100">Next</button>
+                                    <button class="btn btn-primary w-100 mb-3">Next</button>
                                 </form>
                             </div>
                         </div>
