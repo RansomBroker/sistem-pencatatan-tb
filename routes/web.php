@@ -55,7 +55,7 @@ Route::controller(InstallerController::class)->name('install.')->group(function 
     Route::get('/install/step-five', 'stepFive')->name('step.five');
 });
 
-Route::middleware(['expired.check', 'auth.check'])->group(function () {
+Route::middleware(['install.check','expired.check', 'auth.check'])->group(function () {
 
     Route::get('/', function () {
         return view('index');
@@ -269,11 +269,11 @@ Route::middleware(['expired.check', 'auth.check'])->group(function () {
         Route::post('user/user-add/add', 'userAdd')->middleware('not.admin');
         Route::post('user/user-edit/edit', 'userEdit')->middleware('not.admin');
 
+        // login
+        Route::get('/login', 'loginView')->name('login')->withoutMiddleware(['auth.check', 'expired.check']);
+        Route::post('/login/process', 'login')->withoutMiddleware(['auth.check', 'expired.check']);
+
     });
 
 });
-
-// login
-Route::get('/login', [UserController::class, 'loginView'])->name('login');
-Route::post('/login/process', [UserController::class, 'login']);
 

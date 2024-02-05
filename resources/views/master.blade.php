@@ -24,12 +24,12 @@
     </svg>
 
     <div class="wrapper">
-        @if(Request::is('login/**') && Request::is('install/**') )
+        @if(!Request::is('login') && !Request::is('install/**') )
             @include('includes.sidebar')
         @endif
         <div class="main">
             {{-- navbar --}}
-            @if(Request::is('login/**') && Request::is('install/**') )
+            @if(!Request::is('login') && !Request::is('install/**') )
                 @include('includes.navbar')
             @endif
 
