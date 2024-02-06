@@ -10,6 +10,50 @@ use Illuminate\Support\Facades\File;
 
 class InstallerController extends Controller
 {
+
+    private $_minPhpVersion = '7.0.0';
+
+    public function installWelcome()
+    {
+        return view('install.welcome');
+    }
+
+    public function installWelcomeProcess(Request $request)
+    {
+        $validator = $request->validate([
+            'check' => 'required|in:1'
+        ], [
+            'check.required' => 'Anda harus klik check pada checkbox di bawah untuk melanjutkan installasi'
+        ]);
+
+        return redirect()->route('install.requirement.check');
+    }
+
+    public function requirementCheck()
+    {
+        $requirement = config('install');
+        return view('install.requirement_check', compact('requirement'));
+    }
+
+    public function requirementCheckProcess(Request $request)
+    {
+        $phpVersionSupport = $this->checkPHPversion(config('installer.core.minPhpVersion'));
+        $requirementsCheck  = $this->check(config('install.requirements'));
+
+        if ($phpVersionSupport['supported'] == false) {
+              $request->session()->flash('error', 'Versi PHP tidak support silahkan update versi PHP anda. Supported PHP version min '. $phpVersionSupport['minimum'] . ' current PHP version '. $phpVersionSupport['current']);
+              return redirect()->back();
+        }
+
+        if ($requirementsCheck['errors']) {
+            $request->session()->flash('error', 'Ekstensi PHP Tidak memenuhi requirement, silahkan aktifkan ekstensi PHP yang dibutuhkan oleh website.');
+            $request->session()->flash('error_list', $requirementsCheck['requirements']['php']);
+            return redirect()->back();
+        }
+
+        return redirect()->route('install.step.one');
+    }
+
     public function stepOne()
     {
         return view('install.step_one');
@@ -23,7 +67,26 @@ class InstallerController extends Controller
             'check.required' => 'Anda harus klik check pada checkbox di bawah untuk melanjutkan installasi'
         ]);
 
-        return redirect()->route('install.step.two');
+        // make .env empty
+        // write to env file
+        try {
+            $envFile = app()->environmentFilePath();
+            $envFileContents = File::get($envFile);
+            $envFileContents = str_replace('DB_HOST=' . env('DB_HOST'), 'DB_HOST=', $envFileContents);
+            $envFileContents = str_replace('DB_CONNECTION=' . env('DB_CONNECTION'), 'DB_CONNECTION=', $envFileContents);
+            $envFileContents = str_replace('DB_PORT=' . env('DB_PORT'), 'DB_PORT=', $envFileContents);
+            $envFileContents = str_replace('NEW_DB=' . env('NEW_DB'), 'NEW_DB=', $envFileContents);
+            $envFileContents = str_replace('DB_USERNAME=' . env('DB_USERNAME'), 'DB_USERNAME=', $envFileContents);
+            $envFileContents = str_replace('DB_PASSWORD=' . env('DB_PASSWORD'), 'DB_PASSWORD=', $envFileContents);
+            File::put($envFile, $envFileContents);
+
+            $request->session()->flash('success', 'Berhasil reset konfigurasi');
+            return redirect()->route('install.step.two');
+        } catch (\Exception $e) {
+            $request->session()->flash('error', $e->getMessage());
+            return redirect()->back();
+        }
+
     }
 
     public function stepTwo()
@@ -143,6 +206,101 @@ class InstallerController extends Controller
         $admin = $user->first();
 
         return view('install.step_five', compact('admin'));
+    }
+
+    // other helper method
+
+    /**
+     * Check for the server requirements.
+     *
+     * @param  array  $requirements
+     * @return array
+     */
+    private function check(array $requirements)
+    {
+        $results = [];
+        $results['errors'] = false;
+
+        foreach ($requirements as $type => $requirement) {
+            switch ($type) {
+                // check php requirements
+                case 'php':
+                    foreach ($requirements[$type] as $requirement) {
+                        $results['requirements'][$type][$requirement] = true;
+
+                        if (! extension_loaded($requirement)) {
+                            $results['requirements'][$type][$requirement] = false;
+
+                            $results['errors'] = true;
+                        }
+                    }
+                    break;
+                // check apache requirements
+                case 'apache':
+                    foreach ($requirements[$type] as $requirement) {
+                        // if function doesn't exist we can't check apache modules
+                        if (function_exists('apache_get_modules')) {
+                            $results['requirements'][$type][$requirement] = true;
+
+                            if (! in_array($requirement, apache_get_modules())) {
+                                $results['requirements'][$type][$requirement] = false;
+
+                                $results['errors'] = true;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Check PHP version requirement.
+     *
+     * @return array
+     */
+    private function checkPHPversion(string $minPhpVersion = null)
+    {
+        $minVersionPhp = $minPhpVersion;
+        $currentPhpVersion = $this->getPhpVersionInfo();
+        $supported = false;
+
+        if ($minPhpVersion == null) {
+            $minVersionPhp = $this->_minPhpVersion;
+        }
+
+        if (version_compare($currentPhpVersion['version'], $minVersionPhp) >= 0) {
+            $supported = true;
+        }
+
+        $phpStatus = [
+            'full' => $currentPhpVersion['full'],
+            'current' => $currentPhpVersion['version'],
+            'minimum' => $minVersionPhp,
+            'supported' => $supported,
+        ];
+
+        return $phpStatus;
+    }
+
+    /**
+     * Get current Php version information.
+     *
+     * @return array
+     */
+
+    private static function getPhpVersionInfo()
+    {
+        $currentVersionFull = PHP_VERSION;
+        preg_match("#^\d+(\.\d+)*#", $currentVersionFull, $filtered);
+        $currentVersion = $filtered[0];
+
+        return [
+            'full' => $currentVersionFull,
+            'version' => $currentVersion,
+        ];
     }
 
 }

@@ -28,29 +28,37 @@ use Illuminate\Support\Facades\Route;
 // install procedure
 Route::controller(InstallerController::class)->name('install.')->group(function () {
 
-    // step 1
+    // install welcome
+    Route::get('/install/welcome', 'installWelcome')->name('welcome');
+    Route::post('/install/welcome/process', 'installWelcomeProcess')->name('welcome.process');
+
+    // requirements
+    Route::get('/install/requirement-check', 'requirementCheck')->name('requirement.check');
+    Route::post('/install/requirement-check/process', 'requirementCheckProcess')->name('requirement.check.process');
+
+    // step 3
     // check env file has copied or no
     Route::get('/install/step-one', 'stepOne')->name('step.one');
     Route::post('/install/step-one/process', 'stepOneProcess')->name('step.one.process');
 
-    // step 2
+    // step 4
     // check database connection
     Route::get('/install/step-two', 'stepTwo')->name('step.two');
     Route::post('/install/step-two/process', 'stepTwoProcess')->name('step.two.process');
     Route::get('/install/step-two/confirmation', 'stepTwoConfirmation')->name('step.two.confirmation');
     Route::post('/install/step-two/install', 'stepTwoInstall')->name('step.two.install');
 
-    // step 3
+    // step 5
     // create a new database
     Route::get('/install/step-three', 'stepThree')->name('step.three');
     Route::post('/install/step-three/process', 'stepThreeProcess')->name('step.three.process');
 
-    //step 4
+    //step 6
     // create admin username and password
     Route::get('/install/step-for', 'stepFour')->name('step.four');
     Route::post('/install/step-for/process', 'stepFourProcess')->name('step.four.process');
 
-    //step 5
+    //step 7
     //overview
     Route::get('/install/step-five', 'stepFive')->name('step.five');
 });

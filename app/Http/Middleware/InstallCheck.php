@@ -18,7 +18,7 @@ class InstallCheck
     public function handle(Request $request, Closure $next)
     {
         if (empty(env('DB_HOST')) || empty(env('DB_CONNECTION')) || empty(env('DB_PORT')) || empty(env('DB_DATABASE')) || empty(env('DB_USERNAME')) || empty(env('DB_PASSWORD'))) {
-            return redirect()->route('install.step.one');
+            return redirect()->route('install.welcome');
         }
 
         return $next($request);
