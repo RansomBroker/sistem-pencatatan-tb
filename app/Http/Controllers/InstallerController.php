@@ -142,6 +142,13 @@ class InstallerController extends Controller
             // create database
             DB::connection()->getPdo()->exec("CREATE DATABASE $dbDatabase");
 
+            // write db files
+            $envFile = app()->environmentFilePath();
+            $envFileContents = File::get($envFile);
+            $envFileContents = str_replace('DB_DATABASE=' . env('DB_DATABASE'), 'DB_DATABASE='.$dbDatabase, $envFileContents);
+            $envFileContents = str_replace('NEW_DB=' . env('NEW_DB'), 'NEW_DB=', $envFileContents);
+            File::put($envFile, $envFileContents);
+
             $request->session()->flash('success', 'Berhasil membuat database baru');
             return redirect()->route('install.step.three');
         } catch (\Exception $e) {
