@@ -26,18 +26,6 @@
 
                                 <h4>Langkah 3 (Run Migration File)</h4>
 
-                                <div class="mb-3">
-                                    <span>Note : Anda cukup klik tombol next untuk menjalankan file migrasi  </span>
-                                </div>
-
-                                <p>List file Migartion</p>
-
-                                <ul>
-                                    @foreach($migrationFiles as $file)
-                                        <li>{{ basename($file) }}</li>
-                                    @endforeach
-                                </ul>
-
                                 @if(Session::has('success'))
                                     <div class="alert alert-success d-flex align-items-center" role="alert">
                                         <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
@@ -55,6 +43,18 @@
                                         </div>
                                     </div>
                                 @endif
+
+                                <div class="mb-3">
+                                    <span>Note : Anda cukup klik tombol next untuk menjalankan file migrasi  </span>
+                                </div>
+
+                                <p>List file Migartion</p>
+
+                                <ul>
+                                    @foreach($migrationFiles as $file)
+                                        <li>{{ basename($file) }}</li>
+                                    @endforeach
+                                </ul>
 
                                 <form action="{{ route('install.step.three.process') }}" method="POST">
                                     @csrf
