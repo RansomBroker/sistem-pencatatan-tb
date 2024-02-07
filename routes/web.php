@@ -11,6 +11,7 @@ use App\Http\Controllers\RefundController;
 use App\Http\Controllers\OutstandingController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\InstallerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,7 +25,45 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['expired.check', 'auth.check'])->group(function () {
+// install procedure
+Route::controller(InstallerController::class)->name('install.')->group(function () {
+
+    // install welcome
+    Route::get('/install/welcome', 'installWelcome')->name('welcome');
+    Route::post('/install/welcome/process', 'installWelcomeProcess')->name('welcome.process');
+
+    // requirements
+    Route::get('/install/requirement-check', 'requirementCheck')->name('requirement.check');
+    Route::post('/install/requirement-check/process', 'requirementCheckProcess')->name('requirement.check.process');
+
+    // step 3
+    // check env file has copied or no
+    Route::get('/install/step-one', 'stepOne')->name('step.one');
+    Route::post('/install/step-one/process', 'stepOneProcess')->name('step.one.process');
+
+    // step 4
+    // check database connection
+    Route::get('/install/step-two', 'stepTwo')->name('step.two');
+    Route::post('/install/step-two/process', 'stepTwoProcess')->name('step.two.process');
+    Route::get('/install/step-two/confirmation', 'stepTwoConfirmation')->name('step.two.confirmation');
+    Route::post('/install/step-two/install', 'stepTwoInstall')->name('step.two.install');
+
+    // step 5
+    // create a new database
+    Route::get('/install/step-three', 'stepThree')->name('step.three');
+    Route::post('/install/step-three/process', 'stepThreeProcess')->name('step.three.process');
+
+    //step 6
+    // create admin username and password
+    Route::get('/install/step-for', 'stepFour')->name('step.four');
+    Route::post('/install/step-for/process', 'stepFourProcess')->name('step.four.process');
+
+    //step 7
+    //overview
+    Route::get('/install/step-five', 'stepFive')->name('step.five');
+});
+
+Route::middleware(['install.check','expired.check', 'auth.check'])->group(function () {
 
     Route::get('/', function () {
         return view('index');
@@ -238,11 +277,11 @@ Route::middleware(['expired.check', 'auth.check'])->group(function () {
         Route::post('user/user-add/add', 'userAdd')->middleware('not.admin');
         Route::post('user/user-edit/edit', 'userEdit')->middleware('not.admin');
 
+        // login
+        Route::get('/login', 'loginView')->name('login')->withoutMiddleware(['auth.check', 'expired.check']);
+        Route::post('/login/process', 'login')->withoutMiddleware(['auth.check', 'expired.check']);
+
     });
 
 });
-
-// login
-Route::get('/login', [UserController::class, 'loginView']);
-Route::post('/login/process', [UserController::class, 'login']);
 
