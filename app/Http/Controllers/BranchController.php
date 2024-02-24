@@ -88,26 +88,34 @@ class BranchController extends Controller
     }
 
     public function branchDataGet(Request $request) {
-        $columns = array('name', 'name', 'branch', 'address', 'telephone', 'npwp', 'company');
+        $branch = Branch::query();
 
-        $dataWithoutLimit = Branch::orderBy($columns[$request['order'][0]['column']], $request['order'][0]['dir'])
-            ->where('name', 'ILIKE',  '%'.$request['columns'][1]['search']['value'].'%')
-            ->where('branch', 'ILIKE',  '%'.$request['columns'][2]['search']['value'].'%')
-            ->where('address', 'ILIKE',  '%'.$request['columns'][3]['search']['value'].'%')
-            ->where('telephone', 'ILIKE',  '%'.$request['columns'][4]['search']['value'].'%')
-            ->where('npwp', 'ILIKE',  '%'.$request['columns'][5]['search']['value'].'%')
-            ->where('company', 'ILIKE',  '%'.$request['columns'][6]['search']['value'].'%')
-            ->get();
-        $recordsTotal = count($dataWithoutLimit);
+        if ($request['columns'][1]['search']['value'] != '') {
+            $branch->where('name', 'ILIKE',  '%'.$request['columns'][1]['search']['value'].'%');
+        }
 
-        $branchData = Branch::orderBy($columns[$request['order'][0]['column']], $request['order'][0]['dir'])
-            ->where('name', 'ILIKE',  '%'.$request['columns'][1]['search']['value'].'%')
-            ->where('branch', 'ILIKE',  '%'.($request['columns'][2]['search']['value']).'%')
-            ->where('address', 'ILIKE',  '%'.$request['columns'][3]['search']['value'].'%')
-            ->where('telephone', 'ILIKE',  '%'.$request['columns'][4]['search']['value'].'%')
-            ->where('npwp', 'ILIKE',  '%'.$request['columns'][5]['search']['value'].'%')
-            ->where('company', 'ILIKE',  '%'.$request['columns'][5]['search']['value'].'%')
-            ->offset($request['start'])
+        if ($request['columns'][2]['search']['value'] != '') {
+            $branch->where('branch', 'ILIKE',  '%'.$request['columns'][2]['search']['value'].'%');
+        }
+
+        if ($request['columns'][3]['search']['value'] != '') {
+            $branch->where('address', 'ILIKE',  '%'.$request['columns'][3]['search']['value'].'%');
+        }
+
+        if ($request['columns'][4]['search']['value'] != '') {
+            $branch->where('telephone', 'ILIKE',  '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][5]['search']['value'] != '') {
+            $branch->where('npwp', 'ILIKE',  '%'.$request['columns'][5]['search']['value'].'%');
+        }
+
+        if ($request['columns'][6]['search']['value'] != '') {
+            $branch->where('company', 'ILIKE',  '%'.$request['columns'][6]['search']['value'].'%');
+        }
+
+        $recordsTotal = count($branch->get());
+        $branchFiltered = $branch->offset($request['start'])
             ->limit($request['length'])
             ->get();
 
@@ -115,7 +123,7 @@ class BranchController extends Controller
             'draw' => intval($request['draw']),
             'recordsTotal' => intval($recordsTotal),
             'recordsFiltered' => intval($recordsTotal),
-            "data" => $branchData
+            'data' => $branchFiltered
         ]);
     }
 
