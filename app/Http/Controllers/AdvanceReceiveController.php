@@ -72,6 +72,7 @@ class AdvanceReceiveController extends Controller
                 'expired_date' => $advanceReceive->expired_date,
                 'customer_id' => $advanceReceive->customers[0]->customer_id,
                 'customer_name'=> $advanceReceive->customers[0]->name,
+                'phone' => $advanceReceive->customers[0]->phone,
                 'type' => ucfirst(strtolower($advanceReceive->type)),
                 'buy_price' => $this->formatNumberPrice($advanceReceive->buy_price),
                 'net_sales' => $this->formatNumberPrice($advanceReceive->net_sale),

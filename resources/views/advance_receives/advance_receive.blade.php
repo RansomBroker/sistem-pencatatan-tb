@@ -127,6 +127,10 @@
                         'title' : 'Nama Customer'
                     },
                     {
+                        'data' : 'phone',
+                        'title' : 'No Hp'
+                    },
+                    {
                         'data' : 'type',
                         'title' : 'Tipe'
                     },
