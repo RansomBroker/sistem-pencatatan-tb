@@ -22,34 +22,32 @@ class OutstandingController extends Controller
         return view('outstanding/outstanding', $data);
     }
 
-    public function outstandingDataGET()
+    public function outstandingDataGET(Request $request)
     {
-        $outstandingDateRequest = $_GET['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $_GET['columns'][2]['search']['value'];
+        $outstandingDateRequest = $request['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $request['columns'][2]['search']['value'];
         $outstandingDateStart = explode("||", $outstandingDateRequest)[0];
         $outstandingDateEnd = explode("||", $outstandingDateRequest)[1];
 
-        $dataCount = AdvanceReceive::with('customers', 'branches', 'products.categories' )
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$_GET['columns'][4]['search']['value'].'%')
-            ->whereRelation('branches', function (Builder $query) {
-                if ($_GET['columns'][0]['search']['value'] != ""){
-                    $query->where('id', $_GET['columns'][0]['search']['value']);
-                }
-            })
-            ->whereBetween('buy_date', [$outstandingDateStart, $outstandingDateEnd])
-            ->get();
+        $outstandingData = AdvanceReceive::query()->with('customers', 'branches', 'products.categories' );
 
-        $data = AdvanceReceive::with('customers', 'branches', 'products.categories')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$_GET['columns'][4]['search']['value'].'%')
-            ->whereRelation('branches', function (Builder $query) {
-                if ($_GET['columns'][0]['search']['value'] != ""){
-                    $query->where('id', $_GET['columns'][0]['search']['value']);
-                }
-            })
-            ->whereBetween('buy_date', [$outstandingDateStart, $outstandingDateEnd])
-            ->offset($_GET['start'])
-            ->limit($_GET['length'])
+        if ($request['columns'][3]['search']['value'] != '') {
+            $outstandingData->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$request['columns'][3]['search']['value'].'%');
+        }
+
+        if ($request['columns'][4]['search']['value'] != '') {
+            $outstandingData->whereRelation('customers', 'name', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][0]['search']['value'] != '') {
+            $outstandingData->whereRelation('branches', 'id', $request['columns'][0]['search']['value']);
+        }
+
+        $outstandingData->whereBetween('buy_date', [$outstandingDateStart, $outstandingDateEnd]);
+
+        $dataCount = $outstandingData->get();
+
+        $data = $outstandingData->offset($request['start'])
+            ->limit($request['length'])
             ->get();
 
         $report = [
@@ -58,7 +56,7 @@ class OutstandingController extends Controller
         ];
 
         return response()->json([
-            'draw' => intval($_GET['draw']),
+            'draw' => intval($request['draw']),
             'recordsTotal' => intval(count($dataCount)),
             'recordsFiltered' => intval(count($dataCount)),
             'data' => $data,

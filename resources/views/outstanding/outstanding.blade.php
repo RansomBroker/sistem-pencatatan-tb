@@ -106,7 +106,8 @@
                 bServerSide: true,
                 ajax: {
                     url: "{{ URL::to('/outstanding/data-get') }}",
-                    type: 'GET',
+                    type: 'POST',
+                    headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
                     dataSrc: function (data) {
                         $(".report-tr").empty();
                         $(".report-tr").append(`
@@ -203,18 +204,9 @@
                     outstandingAdvanceReceive.columns(2).search(buyDateFilter).draw();
                 }
 
-                if (idFilter.length > 0 ) {
-                    outstandingAdvanceReceive.columns(3).search(idFilter).draw();
-                }
-
-                if (nameFilter.length > 0) {
-                    outstandingAdvanceReceive.columns(4).search(nameFilter).draw();
-                }
-
-                if (branchFilter.length > 0) {
-                    outstandingAdvanceReceive.columns(0).search(branchFilter).draw();
-                }
-
+                outstandingAdvanceReceive.columns(3).search(idFilter).draw();
+                outstandingAdvanceReceive.columns(4).search(nameFilter).draw();
+                outstandingAdvanceReceive.columns(0).search(branchFilter).draw();
             })
 
             $('.btn-reset').on('click', function (e) {

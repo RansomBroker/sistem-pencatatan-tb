@@ -247,7 +247,7 @@ Route::middleware(['install.check','expired.check', 'auth.check'])->group(functi
     /* Outstanding */
     Route::controller(OutstandingController::class)->group(function() {
         Route::get('/outstanding', 'outstanding');
-        Route::get('/outstanding/data-get', 'outstandingDataGET');
+        Route::post('/outstanding/data-get', 'outstandingDataGET');
 
         /* Export Outstanding */
         Route::post('/outstanding/outstanding-export/excel', 'outstandingExportExcel');
