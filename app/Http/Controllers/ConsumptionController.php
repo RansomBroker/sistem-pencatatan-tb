@@ -32,17 +32,21 @@ class ConsumptionController extends Controller
     public function consumptionDataGET(Request $request)
     {
         $consumptionDateRequest = isset($request['columns'][2]['search']['value']) && $request['columns'][2]['search']['value'] != ""  ? $request['columns'][2]['search']['value']: '1980-01-01||2999-12-31';
-
-        $idFilter = $request['columns'][4]['search']['value'] ?? '';
-        $nameFilter = $request['columns'][5]['search']['value'] ?? '';
         $branchFilter = $request['columns'][1]['search']['value'] ?? '';
 
-        // generate data
-        $columnsRecord = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
-            ->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
+        $consumptionData = AdvanceReceive::query()
+            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches');
+
+        if ($request['columns'][4]['search']['value'] != '') {
+            $consumptionData->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][5]['search']['value'] != '') {
+            $consumptionData->whereRelation('customers', 'name', 'ILIKE', '%'.$request['columns'][5]['search']['value'].'%');
+        }
+
+        if ($request['columns'][6]['search']['value'] != '') {
+            $consumptionData->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
                 if ($branchFilter != "" || $consumptionDateRequest != "1980-01-01||2999-12-31") {
                     $query->whereRelation('history', function (Builder $q) use($branchFilter, $consumptionDateRequest){
                         if ($branchFilter !=  "") {
@@ -54,29 +58,12 @@ class ConsumptionController extends Controller
                         }
                     });
                 }
-            })
-            ->get();
+            });
+        }
 
-
-        $data = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
-            ->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
-                if ($branchFilter != "" || $consumptionDateRequest != "1980-01-01||2999-12-31") {
-                    $query->whereRelation('history', function (Builder $q) use($branchFilter, $consumptionDateRequest){
-                        if ($branchFilter !=  "") {
-                            $q
-                                ->where( 'branch_id', $branchFilter)
-                                ->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                        } else {
-                            $q->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                        }
-                    });
-                }
-            })
-            ->offset($request['start'] ?? 0)
-            ->limit($request['length'] ?? 10)
+        $columnsRecord = $consumptionData->get();
+        $data = $consumptionData->offset($request['start'])
+            ->limit($request['length'])
             ->get();
 
         $getBranchFilter = AdvanceReceive::orderBy('buy_date', 'asc')
@@ -98,8 +85,8 @@ class ConsumptionController extends Controller
                         $query->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
                     }
                 })
-                ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-                ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
+                ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%')
+                ->whereRelation('customers', 'name', 'ILIKE', '%'.$request['columns'][5]['search']['value'].'%')
                 ->get();
 
         $recordsTotal = count($columnsRecord);
@@ -191,17 +178,21 @@ class ConsumptionController extends Controller
     public function consumptionGetAvailableData(Request $request)
     {
         $consumptionDateRequest = isset($request['columns'][2]['search']['value']) && $request['columns'][2]['search']['value'] != ""  ? $request['columns'][2]['search']['value']: '1980-01-01||2999-12-31';
-
-        $idFilter = $request['columns'][4]['search']['value'] ?? '';
-        $nameFilter = $request['columns'][5]['search']['value'] ?? '';
         $branchFilter = $request['columns'][1]['search']['value'] ?? '';
 
-        // generate data
-        $columnsRecord = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
-            ->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
+        $consumptionData = AdvanceReceive::query()
+            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches');
+
+        if ($request['columns'][4]['search']['value'] != '') {
+            $consumptionData->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][5]['search']['value'] != '') {
+            $consumptionData->whereRelation('customers', 'name', 'ILIKE', '%'.$request['columns'][5]['search']['value'].'%');
+        }
+
+        if ($request['columns'][6]['search']['value'] != '') {
+            $consumptionData->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
                 if ($branchFilter != "" || $consumptionDateRequest != "1980-01-01||2999-12-31") {
                     $query->whereRelation('history', function (Builder $q) use($branchFilter, $consumptionDateRequest){
                         if ($branchFilter !=  "") {
@@ -213,55 +204,16 @@ class ConsumptionController extends Controller
                         }
                     });
                 }
-            })
+            });
+        }
+
+        $columnsRecord = $consumptionData
             ->where('status', 'AVAILABLE')
             ->get();
-
-
-        $data = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
-            ->whereRelation('consumptions', function (Builder $query)  use($branchFilter, $consumptionDateRequest) {
-                if ($branchFilter != "" || $consumptionDateRequest != "1980-01-01||2999-12-31") {
-                    $query->whereRelation('history', function (Builder $q) use($branchFilter, $consumptionDateRequest){
-                        if ($branchFilter !=  "") {
-                            $q
-                                ->where( 'branch_id', $branchFilter)
-                                ->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                        } else {
-                            $q->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                        }
-                    });
-                }
-            })
-            ->offset($request['start'] ?? 0)
-            ->limit($request['length'] ?? 10)
+        $data = $consumptionData
             ->where('status', 'AVAILABLE')
-            ->get();
-
-        $getBranchFilter = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with(['customers', 'branches', 'products.categories', 'consumptions.history' => function ($query) use ($branchFilter, $consumptionDateRequest){
-                if ($branchFilter != "") {
-                    $query
-                        ->where( 'branch_id', $branchFilter)
-                        ->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                } else {
-                    $query->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                }
-            }])
-            ->whereRelation('consumptions.history', function (Builder $query) use($branchFilter, $consumptionDateRequest){
-                if ($branchFilter != "") {
-                    $query
-                        ->where( 'branch_id', $branchFilter)
-                        ->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                } else {
-                    $query->whereBetween('consumption_date', [explode('||', $consumptionDateRequest)[0], explode('||', $consumptionDateRequest)[1]]);
-                }
-            })
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
-            ->where('status', 'AVAILABLE')
+            ->offset($request['start'])
+            ->limit($request['length'])
             ->get();
 
         $recordsTotal = count($columnsRecord);

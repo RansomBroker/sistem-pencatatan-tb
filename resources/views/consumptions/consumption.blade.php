@@ -382,18 +382,9 @@
                     let startDate = "1980-01-01";
                     let endDate = "2999-01-01";
 
-
-                    if (idFilter.length > 0 ) {
-                        consumptionTable.columns(4).search(idFilter).draw();
-                    }
-
-                    if (nameFilter.length > 0) {
-                        consumptionTable.columns(5).search(nameFilter).draw();
-                    }
-
-                    if (branchFilter.length > 0) {
-                        consumptionTable.columns(1).search(branchFilter).draw();
-                    }
+                    consumptionTable.columns(4).search(idFilter).draw();
+                    consumptionTable.columns(5).search(nameFilter).draw();
+                    consumptionTable.columns(1).search(branchFilter).draw();
 
                     /* search filter */
                     if (startConsumptionDate.length > 0 || endConsumptionDate.length > 0  ) {
