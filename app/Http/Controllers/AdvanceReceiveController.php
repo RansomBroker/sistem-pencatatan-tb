@@ -175,7 +175,7 @@ class AdvanceReceiveController extends Controller
         $unitPrice = preg_replace($regex, '', $validator['unit-price']);
 
         /* get customer id */
-        $customer =  Customer::where('customer_id', 'ILIKE' , '%'.$validator['customer-id'].'%')->first();
+        $customer =  Customer::where('id' , $validator['customer-id'])->first();
         /* write to db */
         $advanceReceive = new AdvanceReceive();
 

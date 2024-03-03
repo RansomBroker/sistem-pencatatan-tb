@@ -45,7 +45,7 @@
                         <div class="row text-muted">
                             <div class="d-flex justify-content-end">
                                 <p class="mb-0">
-                                    <a class="text-muted d-inline-flex">V.1.0 &copy; 2023 Tokyo Belle</a>
+                                    <a class="text-muted d-inline-flex">V.1.1 &copy; 2024 Tokyo Belle</a>
                                 </p>
                             </div>
                         </div>
