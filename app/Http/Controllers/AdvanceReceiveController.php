@@ -176,6 +176,7 @@ class AdvanceReceiveController extends Controller
 
         $expiredDate = Carbon::create($validator['expired-date'])->toDateString();
         $currDate = Carbon::now()->toDateString();
+
         if ($expiredDate >= $currDate) {
             $status = "AVAILABLE";
             $advanceReceive->qty_remains = $validator['qty'];

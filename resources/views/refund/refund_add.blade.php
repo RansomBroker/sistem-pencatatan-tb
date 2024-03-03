@@ -221,29 +221,9 @@
                     url: '{{ URL::to('/refund/get-branch-list') }}',
                     method: "GET",
                     success: function (response) {
-                        let branchOption = ``;
-
-                        branchOption += `
-                            <form>
-                                <div class="form-group mb-3">
-                                    <label class="form-label">Cabang Refund <sup class="text-danger">*</sup></label>
-                                    <select class="form-control" name="branch" id="branch-id" required>
-                                            <option value="" selected>-- Pilih Cabang Refund --</option>
-                                            ${(() => {
-                                                let html = ``;
-                                                response.data.forEach(function (branch) {
-                                                    html += `<option value="${branch.id}">${branch.name}</option>`
-                                                })
-                                                return html
-                                            })()}
-                                    </select>
-                                </div>
-                            </form>
-                        `;
-
                         Swal.fire({
                             title: "Refund Advance Receive " + name,
-                            html: branchOption,
+                            html: `<p>*Cabang refund menyesuaikan cabang pembelian</p>`,
                             showCancelButton: true,
                             reverseButtons: true,
                             preConfirm: function () {
