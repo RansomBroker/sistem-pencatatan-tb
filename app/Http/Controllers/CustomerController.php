@@ -29,7 +29,7 @@ class CustomerController extends Controller
     public function customerAdd(Request $request)
     {
         $validator = $request->validate([
-            'customer-id' => 'required|max:10',
+            'customer-id' => 'required|max:25',
             'name' => 'required|max:40',
             'nickname' => 'max:20',
             'tel' => 'max:40',
@@ -79,7 +79,7 @@ class CustomerController extends Controller
     public function customerEdit(Request $request)
     {
         $validator = $request->validate([
-            'customer-id' => 'required|max:10',
+            'customer-id' => 'required|max:25',
             'name' => 'required|max:40',
             'nickname' => 'max:20',
             'tel' => 'max:40',
@@ -113,43 +113,55 @@ class CustomerController extends Controller
 
     public function customerDataGET(Request $request)
     {
-        $columns = array('name','customer_id', 'name', 'nickname', 'address', 'birth_date', 'phone', 'identity_number', 'payment_number', 'email');
+        $customer = Customer::query();
 
-        $dataWithoutLimit = Customer::orderBy($columns[$request['order'][0]['column']], $request['order'][0]['dir'])
-            ->where('customer_id', 'ILIKE', '%'.$request['columns'][1]['search']['value'].'%')
-            ->where('name', 'ILIKE', '%'.$request['columns'][2]['search']['value'].'%')
-            ->where('nickname', 'ILIKE', '%'.$request['columns'][3]['search']['value'].'%')
-            ->where('address', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%')
-            ->orWhereNull('birth_date')
-            ->where('birth_date', 'ILIKE', '%'.$request['columns'][5]['search']['value'].'%')
-            ->where('phone', 'ILIKE', '%'.$request['columns'][6]['search']['value'].'%')
-            ->where('identity_number', 'ILIKE', '%'.$request['columns'][7]['search']['value'].'%')
-            ->where('payment_number', 'ILIKE', '%'.$request['columns'][8]['search']['value'].'%')
-            ->where('email', 'ILIKE', '%'.$request['columns'][9]['search']['value'].'%')
+        if ($request['columns'][1]['search']['value'] != '') {
+                $customer->where('customer_id', 'ILIKE', '%'.$request['columns'][1]['search']['value'].'%');
+        }
+
+        if ($request['columns'][2]['search']['value'] != '') {
+            $customer->where('name', 'ILIKE', '%'.$request['columns'][2]['search']['value'].'%');
+        }
+
+        if ($request['columns'][3]['search']['value'] != '') {
+            $customer->where('nickname', 'ILIKE', '%'.$request['columns'][3]['search']['value'].'%');
+        }
+
+        if ($request['columns'][4]['search']['value'] != '') {
+            $customer->where('address', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][5]['search']['value'] != '') {
+            $customer->where('birth_date', 'ILIKE', '%'.$request['columns'][5]['search']['value'].'%');
+        }
+
+        if ($request['columns'][6]['search']['value'] != '') {
+            $customer->where('phone', 'ILIKE', '%'.$request['columns'][6]['search']['value'].'%');
+        }
+
+        if ($request['columns'][7]['search']['value'] != '') {
+            $customer->where('identity_number', 'ILIKE', '%'.$request['columns'][7]['search']['value'].'%');
+        }
+
+        if ($request['columns'][8]['search']['value'] != '') {
+            $customer->where('payment_number', 'ILIKE', '%'.$request['columns'][8]['search']['value'].'%');
+        }
+
+        if ($request['columns'][9]['search']['value'] != '') {
+            $customer->where('email', 'ILIKE', '%'.$request['columns'][9]['search']['value'].'%');
+        }
+
+        $recordsTotal = count($customer->get());
+
+        $filteredCustomer = $customer->offset($request['start'])
+            ->limit($request['length'])
             ->get();
-
-        $recordsTotal = count($dataWithoutLimit);
-
-        $data = Customer::orderBy($columns[$request['order'][0]['column']], $request['order'][0]['dir'])
-                ->where('customer_id', 'ILIKE', '%'.$request['columns'][1]['search']['value'].'%')
-                ->where('name', 'ILIKE', '%'.$request['columns'][2]['search']['value'].'%')
-                ->where('nickname', 'ILIKE', '%'.$request['columns'][3]['search']['value'].'%')
-                ->where('address', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%')
-                ->orWhereNull('birth_date')
-                ->where('birth_date', 'ILIKE', '%'.$request['columns'][5]['search']['value'].'%')
-                ->where('phone', 'ILIKE', '%'.$request['columns'][6]['search']['value'].'%')
-                ->where('identity_number', 'ILIKE', '%'.$request['columns'][7]['search']['value'].'%')
-                ->where('payment_number', 'ILIKE', '%'.$request['columns'][8]['search']['value'].'%')
-                ->where('email', 'ILIKE', '%'.$request['columns'][9]['search']['value'].'%')
-                ->offset($request['start'])
-                ->limit($request['length'])
-                ->get();
 
         return response()->json([
             'draw' => intval($request['draw']),
             'recordsTotal' => intval($recordsTotal),
             'recordsFiltered' => intval($recordsTotal),
-            "data" => $data
+            'data' => $filteredCustomer
         ]);
     }
 

@@ -183,8 +183,7 @@ class SettingController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
             $request->session()->flash('status', 'danger');
-            $request->session()->flash('message', 'Gagal import data excel');
-            ddd($e);
+            $request->session()->flash('message', 'Gagal import data excel '. $e->getMessage());
             return redirect('setting');
         }
     }

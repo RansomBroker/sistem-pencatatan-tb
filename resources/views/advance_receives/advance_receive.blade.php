@@ -318,6 +318,7 @@
                         headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
                         dataSrc: function (data) {
                             /* Menampilkan data report */
+                            console.log(data)
                             $(".report-tr").empty();
                             $(".report-tr").append(`
                                         <td>${data.report[0].sales}</td>
@@ -412,7 +413,6 @@
                     let startDate = "1980-01-01";
                     let endDate = "2999-01-01";
 
-
                     /* search filter */
                     if (startBuyDate.length > 0 || endBuyDate.length > 0  ) {
                         if (startBuyDate.length < 1 ) {
@@ -441,7 +441,7 @@
                         advanceReceiveTable.columns(5).search(nameFilter).draw();
                     }
 
-                    if (branchFilter.length > 0) {
+                    if (branchFilter.length) {
                         advanceReceiveTable.columns(1).search(branchFilter).draw();
                     }
 

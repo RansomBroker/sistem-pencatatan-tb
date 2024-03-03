@@ -32,7 +32,6 @@ class CustomerExport implements FromQuery, WithHeadings, WithMapping
             ->where('nickname', 'ILIKE', '%'.$this->filter['nickname-filter'].'%')
             ->where('address', 'ILIKE', '%'.$this->filter['address-filter'].'%')
             ->where('birth_date', 'ILIKE', '%'.$this->filter['birth-filter'].'%')
-            ->orWhereNull('birth_date')
             ->where('phone', 'ILIKE', '%'.$this->filter['phone-filter'].'%')
             ->where('identity_number', 'ILIKE', '%'.$this->filter['identity-filter'].'%')
             ->where('payment_number', 'ILIKE', '%'.$this->filter['payment-filter'].'%')
