@@ -23,38 +23,34 @@ class ExpiredController extends Controller
         return view('expired/expired', $data);
     }
 
-    public function expiredDataGET()
+    public function expiredDataGET(Request $request)
     {
-        $expiredDateRequest = $_GET['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $_GET['columns'][2]['search']['value'];
+        $expiredDateRequest = $request['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $request['columns'][2]['search']['value'];
         $expiredDateStart = explode("||", $expiredDateRequest)[0];
         $expiredDateEnd = explode("||", $expiredDateRequest)[1];
 
-        $dataCount = AdvanceReceive::with('customers', 'branches', 'products.categories')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$_GET['columns'][4]['search']['value'].'%')
-            ->whereRelation('branches', function (Builder $query) {
-                if ($_GET['columns'][0]['search']['value'] != ""){
-                    $query->where('id', $_GET['columns'][0]['search']['value']);
-                }
-            })
-            ->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
-            ->where('status', $_GET['columns'][10]['search']['value'] == "" ?  "EXPIRED" : $_GET['columns'][10]['search']['value'])
-            ->get();
+        $expiredData = AdvanceReceive::query()->with('customers', 'branches', 'products.categories');
 
-        $data = AdvanceReceive::with('customers', 'branches', 'products.categories')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$_GET['columns'][4]['search']['value'].'%')
-            ->whereRelation('branches', function (Builder $query) {
-                if ($_GET['columns'][0]['search']['value'] != ""){
-                    $query->where('id', $_GET['columns'][0]['search']['value']);
-                }
-            })
-            ->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
-            ->where('status', $_GET['columns'][10]['search']['value'] == "" ?  "EXPIRED" : $_GET['columns'][10]['search']['value'])
-            ->offset($_GET['start'])
-            ->limit($_GET['length'])
-            ->get();
+        if ($request['columns'][3]['search']['value'] != '') {
+            $expiredData->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$request['columns'][3]['search']['value'].'%');
+        }
 
+        if ($request['columns'][4]['search']['value'] != '') {
+            $expiredData->whereRelation('customers', 'name', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][0]['search']['value'] != '') {
+            $expiredData->whereRelation('branches', 'id', $request['columns'][0]['search']['value']);
+        }
+
+        $expiredData->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
+            ->where('status', $request['columns'][10]['search']['value'] == "" ?  "EXPIRED" : $request['columns'][10]['search']['value']);
+
+        $dataCount = $expiredData->get();
+
+        $data = $expiredData->offset($request['start'])
+            ->limit($request['length'])
+            ->get();
 
         $reportCollection = collect($dataCount);
 
@@ -66,7 +62,7 @@ class ExpiredController extends Controller
         ];
 
         return response()->json([
-            'draw' => intval($_GET['draw']),
+            'draw' => intval($request['draw']),
             'recordsTotal' => intval($dataCount->count()),
             'recordsFiltered' => intval($dataCount->count()),
             'data' => $data,
@@ -74,40 +70,39 @@ class ExpiredController extends Controller
         ]);
     }
 
-    public function expiredDataGetAvailable()
+    public function expiredDataGetAvailable(Request $request)
     {
-        $expiredDateRequest = $_GET['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $_GET['columns'][2]['search']['value'];
+        $expiredDateRequest = $request['columns'][2]['search']['value'] == "" ? '1980-01-01||2999-01-01' : $request['columns'][2]['search']['value'];
         $expiredDateStart = explode("||", $expiredDateRequest)[0];
         $expiredDateEnd = explode("||", $expiredDateRequest)[1];
 
-        $dataCount = AdvanceReceive::with('customers', 'branches', 'products.categories')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$_GET['columns'][4]['search']['value'].'%')
-            ->whereRelation('branches', function (Builder $query) {
-                if ($_GET['columns'][0]['search']['value'] != ""){
-                    $query->where('id', $_GET['columns'][0]['search']['value']);
-                }
-            })
-            ->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
-            ->where('status', 'AVAILABLE')
-            ->get();
 
-        $data = AdvanceReceive::with('customers', 'branches', 'products.categories')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$_GET['columns'][3]['search']['value'].'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$_GET['columns'][4]['search']['value'].'%')
-            ->whereRelation('branches', function (Builder $query) {
-                if ($_GET['columns'][0]['search']['value'] != ""){
-                    $query->where('id', $_GET['columns'][0]['search']['value']);
-                }
-            })
-            ->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
-            ->where('status', 'AVAILABLE')
-            ->offset($_GET['start'])
-            ->limit($_GET['length'])
+        $expiredData = AdvanceReceive::query()->with('customers', 'branches', 'products.categories');
+
+        if ($request['columns'][3]['search']['value'] != '') {
+            $expiredData->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$request['columns'][3]['search']['value'].'%');
+        }
+
+        if ($request['columns'][4]['search']['value'] != '') {
+            $expiredData->whereRelation('customers', 'name', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][0]['search']['value'] != '') {
+            $expiredData->whereRelation('branches', 'id', $request['columns'][0]['search']['value']);
+        }
+
+        $expiredData->whereBetween('expired_date', [$expiredDateStart, $expiredDateEnd])
+            ->where('status', 'AVAILABLE');
+
+        $dataCount = $expiredData->get();
+
+        $data = $expiredData->where('status', 'AVAILABLE')
+            ->offset($request['start'])
+            ->limit($request['length'])
             ->get();
 
         return response()->json([
-            'draw' => intval($_GET['draw']),
+            'draw' => intval($request['draw']),
             'recordsTotal' => intval(count($dataCount)),
             'recordsFiltered' => intval(count($dataCount)),
             'data' => $data,

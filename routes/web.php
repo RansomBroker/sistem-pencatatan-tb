@@ -212,8 +212,8 @@ Route::middleware(['install.check','expired.check', 'auth.check'])->group(functi
     /* Expired */
     Route::controller(ExpiredController::class)->group(function () {
         Route::get('/expired', 'expired');
-        Route::get('/expired/data-get', 'expiredDataGET');
-        Route::get('/expired/data-get-available', 'expiredDataGetAvailable');
+        Route::post('/expired/data-get', 'expiredDataGET');
+        Route::post('/expired/data-get-available', 'expiredDataGetAvailable');
 
         Route::get('/expired/add-expired', 'expiredAddView');
         Route::get('/expired/add-expired/{id}', 'expiredAdd');

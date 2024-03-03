@@ -127,7 +127,8 @@
                 bServerSide: true,
                 ajax: {
                     url: "{{ URL::to('/expired/data-get') }}",
-                    type: 'GET',
+                    type: 'POST',
+                    headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
                     dataSrc: function (data) {
                         /* Menampilkan data report */
                         $(".report-tr").empty();
@@ -247,20 +248,10 @@
                     expiredAdvanceReceiveTable.columns(2).search(expiredDateFilter).draw();
                 }
 
-                if (idFilter.length > 0 ) {
-                    expiredAdvanceReceiveTable.columns(3).search(idFilter).draw();
-                }
-
-                if (nameFilter.length > 0) {
-                    expiredAdvanceReceiveTable.columns(4).search(nameFilter).draw();
-                }
-
-                if (branchFilter.length > 0) {
-                    expiredAdvanceReceiveTable.columns(0).search(branchFilter).draw();
-                }
-                if (statusFilter.length > 0) {
-                    expiredAdvanceReceiveTable.columns(10).search(statusFilter).draw();
-                }
+                expiredAdvanceReceiveTable.columns(3).search(idFilter).draw();
+                expiredAdvanceReceiveTable.columns(4).search(nameFilter).draw();
+                expiredAdvanceReceiveTable.columns(0).search(branchFilter).draw();
+                expiredAdvanceReceiveTable.columns(10).search(statusFilter).draw();
 
             })
 

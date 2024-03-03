@@ -93,7 +93,8 @@
                 bServerSide: true,
                 ajax: {
                     url: "{{ URL::to('/expired/data-get-available') }}",
-                    type: 'GET',
+                    type: 'POST',
+                    headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
                     dataSrc: function (data) {
                         return data.data
                     }
@@ -196,17 +197,9 @@
                     expiredAdvanceReceiveTable.columns(2).search(expiredDateFilter).draw();
                 }
 
-                if (idFilter.length > 0 ) {
-                    expiredAdvanceReceiveTable.columns(3).search(idFilter).draw();
-                }
-
-                if (nameFilter.length > 0) {
-                    expiredAdvanceReceiveTable.columns(4).search(nameFilter).draw();
-                }
-
-                if (branchFilter.length > 0) {
-                    expiredAdvanceReceiveTable.columns(0).search(branchFilter).draw();
-                }
+                expiredAdvanceReceiveTable.columns(3).search(idFilter).draw();
+                expiredAdvanceReceiveTable.columns(4).search(nameFilter).draw();
+                expiredAdvanceReceiveTable.columns(0).search(branchFilter).draw();
 
             })
 
