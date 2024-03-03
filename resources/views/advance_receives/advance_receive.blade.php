@@ -433,18 +433,9 @@
                         advanceReceiveTable.columns(2).search(buyDateFilter).draw();
                     }
 
-                    if (idFilter.length > 0 ) {
-                        advanceReceiveTable.columns(4).search(idFilter).draw();
-                    }
-
-                    if (nameFilter.length > 0) {
-                        advanceReceiveTable.columns(5).search(nameFilter).draw();
-                    }
-
-                    if (branchFilter.length) {
-                        advanceReceiveTable.columns(1).search(branchFilter).draw();
-                    }
-
+                    advanceReceiveTable.columns(4).search(idFilter).draw();
+                    advanceReceiveTable.columns(5).search(nameFilter).draw();
+                    advanceReceiveTable.columns(1).search(branchFilter).draw();
                 })
 
                 /* btn-reset */

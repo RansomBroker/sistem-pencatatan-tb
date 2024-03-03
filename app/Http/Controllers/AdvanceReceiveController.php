@@ -38,22 +38,26 @@ class AdvanceReceiveController extends Controller
         $nameFilter = $request['columns'][5]['search']['value'] ?? '';
         $branchFilter = $request['columns'][1]['search']['value'] ?? '';
 
-        // generate data
-        $columnsRecord = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
-            ->whereRelation('branches', 'name', 'ILIKE', '%'.$branchFilter.'%')
-            ->whereBetween('buy_date', [$buyDateStart, $buyDateEnd])
-            ->get();
+        $advanceReceiveData = AdvanceReceive::query()
+            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches');
 
-        $data = AdvanceReceive::orderBy('buy_date', 'asc')
-            ->with('customers', 'branches', 'products.categories', 'consumptions.history.branches', 'refund_branches')
-            ->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$idFilter.'%')
-            ->whereRelation('customers', 'name', 'ILIKE', '%'.$nameFilter.'%')
-            ->whereRelation('branches', 'name', 'ILIKE', '%'.$branchFilter.'%')
-            ->whereBetween('buy_date', [$buyDateStart, $buyDateEnd])
-            ->offset($request['start'] ?? 0)
+        if ($request['columns'][4]['search']['value'] != '') {
+            $advanceReceiveData->whereRelation('customers', 'customer_id', 'ILIKE', '%'.$request['columns'][4]['search']['value'].'%');
+        }
+
+        if ($request['columns'][5]['search']['value'] != '') {
+            $advanceReceiveData->whereRelation('customers', 'name', 'ILIKE', '%'.$request['columns'][5]['search']['value'].'%');
+        }
+
+        if ($request['columns'][1]['search']['value'] != '') {
+            $advanceReceiveData->whereRelation('branches', 'name', 'ILIKE', '%'.$request['columns'][1]['search']['value'].'%');
+        }
+
+        $advanceReceiveData->whereBetween('buy_date', [$buyDateStart, $buyDateEnd]);
+
+
+        $columnsRecord = $advanceReceiveData->get();
+        $data = $advanceReceiveData->offset($request['start'] ?? 0)
             ->limit($request['length'] ?? 10)
             ->get();
 
