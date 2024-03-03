@@ -229,8 +229,8 @@ Route::middleware(['install.check','expired.check', 'auth.check'])->group(functi
     /* Refund */
     Route::controller(RefundController::class)->group(function () {
         Route::get('/refund', 'refund');
-        Route::get('/refund/data-get', 'refundDataGET');
-        Route::get('/refund/data-get-available', 'refundDataGetAvailable');
+        Route::post('/refund/data-get', 'refundDataGET');
+        Route::post('/refund/data-get-available', 'refundDataGetAvailable');
         Route::get('/refund/get-branch-list', 'branchList');
 
         Route::get('/refund/add-refund', 'addRefundView');

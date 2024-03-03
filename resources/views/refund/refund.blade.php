@@ -117,7 +117,8 @@
                 bServerSide: true,
                 ajax: {
                     url: "{{ URL::to('/refund/data-get') }}",
-                    type: 'GET',
+                    type: 'POST',
+                    headers: {'X-CSRF-TOKEN': $('[name=_token]').val()},
                     dataSrc: function (data) {
                         $(".report-tr").empty();
                         $(".report-tr").append(`
@@ -205,20 +206,9 @@
 
 
                 /* search filter */
-
-
-                if (idFilter.length > 0 ) {
-                    refundAdvanceReceiveTable.columns(3).search(idFilter).draw();
-                }
-
-                if (nameFilter.length > 0) {
-                    refundAdvanceReceiveTable.columns(4).search(nameFilter).draw();
-                }
-
-                if (branchFilter.length > 0) {
-                    refundAdvanceReceiveTable.columns(0).search(branchFilter).draw();
-                }
-
+                refundAdvanceReceiveTable.columns(3).search(idFilter).draw();
+                refundAdvanceReceiveTable.columns(4).search(nameFilter).draw();
+                refundAdvanceReceiveTable.columns(0).search(branchFilter).draw();
             })
 
             $('.btn-reset').on('click', function (e) {
