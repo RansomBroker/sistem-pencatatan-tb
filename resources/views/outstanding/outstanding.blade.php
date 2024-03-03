@@ -336,8 +336,6 @@
                     })
                 }
 
-
-
             })
 
             function formatNumberPrice(n) {
